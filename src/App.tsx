@@ -33,16 +33,20 @@ import {
 } from "lucide-react";
 
 // =========================================================================
-// 1. HARDWARE-ACCELERATED CUSTOM CYBER CURSOR
+// 1. HARDWARE-ACCELERATED CUSTOM CYBER CURSOR (DISABLED ON TOUCH DEVICES)
 // =========================================================================
 const CustomCyberCursor: React.FC = () => {
   const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(true);
 
   useEffect(() => {
-    if (window.matchMedia("(pointer: coarse)").matches) return;
+    if (window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window) {
+      return;
+    }
+    setIsTouchDevice(false);
 
     const onMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
@@ -72,7 +76,7 @@ const CustomCyberCursor: React.FC = () => {
     };
   }, [isVisible]);
 
-  if (!isVisible) return null;
+  if (isTouchDevice || !isVisible) return null;
 
   return (
     <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
@@ -104,7 +108,7 @@ const CustomCyberCursor: React.FC = () => {
 };
 
 // =========================================================================
-// 2. 3D MATRIX TERRAIN CANVAS WITH SHOCKWAVE PHYSICS
+// 2. 3D MATRIX TERRAIN CANVAS (TOUCH-SAFE & MOBILE THROTTLED)
 // =========================================================================
 const Interactive3DMatrixTerrain: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -112,22 +116,30 @@ const Interactive3DMatrixTerrain: React.FC = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     let animId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    const isMobile = window.innerWidth < 768;
+    const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+
+    let width = (canvas.width = window.innerWidth * dpr);
+    let height = (canvas.height = window.innerHeight * dpr);
+    ctx.scale(dpr, dpr);
 
     const handleResize = () => {
       if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      const curIsMobile = window.innerWidth < 768;
+      const curDpr = curIsMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+      width = canvas.width = window.innerWidth * curDpr;
+      height = canvas.height = window.innerHeight * curDpr;
+      ctx.scale(curDpr, curDpr);
     };
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
 
     const ripples: { x: number; y: number; r: number; maxR: number; alpha: number }[] = [];
     const onClick = (e: MouseEvent) => {
+      if (isMobile) return;
       ripples.push({
         x: e.clientX,
         y: e.clientY,
@@ -136,43 +148,52 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         alpha: 0.9,
       });
     };
-    window.addEventListener("click", onClick);
 
-    const stars = Array.from({ length: 70 }, () => ({
-      x: (Math.random() - 0.5) * width * 1.5,
-      y: (Math.random() - 0.5) * height * 1.5,
+    if (!isMobile) {
+      window.addEventListener("click", onClick, { passive: true });
+    }
+
+    const starCount = isMobile ? 30 : 65;
+    const stars = Array.from({ length: starCount }, () => ({
+      x: (Math.random() - 0.5) * window.innerWidth * 1.5,
+      y: (Math.random() - 0.5) * window.innerHeight * 1.5,
       z: Math.random() * 1000 + 100,
-      size: Math.random() * 1.8 + 1,
+      size: Math.random() * 1.5 + 0.8,
       color: Math.random() > 0.4 ? "#00F5D4" : "#7B2CBF",
     }));
 
     let mouseX = 0;
     let mouseY = 0;
     const onMouseMove = (e: MouseEvent) => {
-      mouseX = (e.clientX - width / 2) * 0.04;
-      mouseY = (e.clientY - height / 2) * 0.04;
+      mouseX = (e.clientX - window.innerWidth / 2) * 0.04;
+      mouseY = (e.clientY - window.innerHeight / 2) * 0.04;
     };
-    window.addEventListener("mousemove", onMouseMove, { passive: true });
 
-    const cols = 24;
-    const rows = 18;
-    const spacing = 62;
+    if (!isMobile) {
+      window.addEventListener("mousemove", onMouseMove, { passive: true });
+    }
+
+    const cols = isMobile ? 14 : 24;
+    const rows = isMobile ? 12 : 18;
+    const spacing = isMobile ? 80 : 62;
     let time = 0;
 
     const render = () => {
-      ctx.clearRect(0, 0, width, height);
+      const renderW = window.innerWidth;
+      const renderH = window.innerHeight;
+      ctx.clearRect(0, 0, renderW, renderH);
       time += 0.015;
 
-      // 1. Stars Background
+      // 1. Background Stars
       stars.forEach((star) => {
         star.z -= 1.2;
         if (star.z <= 10) star.z = 1000;
 
         const k = 380 / star.z;
-        const px = (star.x - mouseX * 2) * k + width / 2;
-        const py = (star.y - mouseY * 2) * k + height / 2;
+        const px = (star.x - mouseX * 2) * k + renderW / 2;
+        const py = (star.y - mouseY * 2) * k + renderH / 2;
 
-        if (px >= 0 && px <= width && py >= 0 && py <= height) {
+        if (px >= 0 && px <= renderW && py >= 0 && py <= renderH) {
           const alpha = Math.min(1, Math.max(0.1, (1000 - star.z) / 800));
           ctx.beginPath();
           ctx.arc(px, py, star.size * k, 0, Math.PI * 2);
@@ -183,23 +204,22 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       });
 
-      // 2. Click Shockwaves
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        const rip = ripples[i];
-        rip.r += 3.6;
-        rip.alpha -= 0.018;
+      // 2. Click Shockwaves (Desktop Only)
+      if (!isMobile) {
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const rip = ripples[i];
+          rip.r += 3.6;
+          rip.alpha -= 0.018;
 
-        ctx.beginPath();
-        ctx.arc(rip.x, rip.y, rip.r, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(0, 245, 212, ${Math.max(0, rip.alpha)})`;
-        ctx.lineWidth = 2;
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = "#00F5D4";
-        ctx.stroke();
-        ctx.shadowBlur = 0;
+          ctx.beginPath();
+          ctx.arc(rip.x, rip.y, rip.r, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0, 245, 212, ${Math.max(0, rip.alpha)})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
 
-        if (rip.alpha <= 0 || rip.r >= rip.maxR) {
-          ripples.splice(i, 1);
+          if (rip.alpha <= 0 || rip.r >= rip.maxR) {
+            ripples.splice(i, 1);
+          }
         }
       }
 
@@ -207,7 +227,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
       const fov = 380;
       const cameraY = -150 - mouseY;
       const cameraZ = 450;
-      const rotY = (mouseX / width) * 0.4;
+      const rotY = (mouseX / renderW) * 0.4;
 
       const grid: { sx: number; sy: number; z: number }[][] = [];
 
@@ -218,7 +238,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
           const wz = (r - rows / 2) * spacing;
 
           const dist = Math.sqrt(wx * wx + wz * wz);
-          const wy = Math.sin(dist * 0.025 - time) * 32 + Math.cos(wx * 0.04 + time) * 18;
+          const wy = Math.sin(dist * 0.025 - time) * 28 + Math.cos(wx * 0.04 + time) * 14;
 
           const cosY = Math.cos(rotY);
           const sinY = Math.sin(rotY);
@@ -230,8 +250,8 @@ const Interactive3DMatrixTerrain: React.FC = () => {
 
           if (z2 > 10) {
             const scale = fov / z2;
-            const sx = width / 2 + rx * scale;
-            const sy = height / 2 + y2 * scale;
+            const sx = renderW / 2 + rx * scale;
+            const sy = renderH / 2 + y2 * scale;
             grid[r][c] = { sx, sy, z: z2 };
           } else {
             grid[r][c] = { sx: -9999, sy: -9999, z: 0 };
@@ -244,7 +264,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
           const p1 = grid[r][c];
           if (p1.sx === -9999) continue;
 
-          const alpha = Math.max(0.06, Math.min(0.55, (850 - p1.z) / 750));
+          const alpha = Math.max(0.06, Math.min(0.5, (850 - p1.z) / 750));
 
           if (c < cols - 1) {
             const p2 = grid[r][c + 1];
@@ -252,8 +272,8 @@ const Interactive3DMatrixTerrain: React.FC = () => {
               ctx.beginPath();
               ctx.moveTo(p1.sx, p1.sy);
               ctx.lineTo(p2.sx, p2.sy);
-              ctx.strokeStyle = `rgba(0, 245, 212, ${alpha * 0.75})`;
-              ctx.lineWidth = 1;
+              ctx.strokeStyle = `rgba(0, 245, 212, ${alpha * 0.7})`;
+              ctx.lineWidth = 0.9;
               ctx.stroke();
             }
           }
@@ -264,8 +284,8 @@ const Interactive3DMatrixTerrain: React.FC = () => {
               ctx.beginPath();
               ctx.moveTo(p1.sx, p1.sy);
               ctx.lineTo(p3.sx, p3.sy);
-              ctx.strokeStyle = `rgba(123, 44, 191, ${alpha * 0.85})`;
-              ctx.lineWidth = 1;
+              ctx.strokeStyle = `rgba(123, 44, 191, ${alpha * 0.75})`;
+              ctx.lineWidth = 0.9;
               ctx.stroke();
             }
           }
@@ -279,17 +299,25 @@ const Interactive3DMatrixTerrain: React.FC = () => {
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("click", onClick);
+      if (!isMobile) {
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("click", onClick);
+      }
       cancelAnimationFrame(animId);
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-80" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0 opacity-70 w-full h-full"
+      style={{ touchAction: "pan-y" }}
+    />
+  );
 };
 
 // =========================================================================
-// 3. 3D WIREFRAME ICOSAHEDRON (MATHEMATICAL POLYHEDRON)
+// 3. 3D WIREFRAME ICOSAHEDRON (TOUCH-SAFE)
 // =========================================================================
 const InteractivePolyhedron3D: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -297,13 +325,17 @@ const InteractivePolyhedron3D: React.FC = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     let animId: number;
-    const size = 160;
-    canvas.width = size;
-    canvas.height = size;
+    const isMobile = window.innerWidth < 768;
+    const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+    const size = isMobile ? 130 : 160;
+
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    ctx.scale(dpr, dpr);
 
     const phi = (1 + Math.sqrt(5)) / 2;
     const a = 1;
@@ -333,10 +365,10 @@ const InteractivePolyhedron3D: React.FC = () => {
 
     const render = () => {
       ctx.clearRect(0, 0, size, size);
-      rotX += 0.012;
-      rotY += 0.018;
+      rotX += 0.01;
+      rotY += 0.015;
 
-      const scale = 38;
+      const scale = isMobile ? 32 : 38;
       const center = size / 2;
 
       const projected = vertices.map(([x, y, z]) => {
@@ -369,19 +401,16 @@ const InteractivePolyhedron3D: React.FC = () => {
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
-        ctx.strokeStyle = `rgba(0, 245, 212, ${alpha * 0.9})`;
+        ctx.strokeStyle = `rgba(0, 245, 212, ${alpha * 0.85})`;
         ctx.lineWidth = 1.2;
         ctx.stroke();
       });
 
       projected.forEach((p) => {
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
         ctx.fillStyle = "#7B2CBF";
-        ctx.shadowBlur = 6;
-        ctx.shadowColor = "#00F5D4";
         ctx.fill();
-        ctx.shadowBlur = 0;
       });
 
       animId = requestAnimationFrame(render);
@@ -392,9 +421,13 @@ const InteractivePolyhedron3D: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative group cursor-pointer shrink-0">
-      <div className="absolute -inset-2 bg-cyan-500/20 rounded-full blur-xl opacity-40 group-hover:opacity-80 transition-opacity" />
-      <canvas ref={canvasRef} className="relative w-28 h-28 sm:w-36 sm:h-36 drop-shadow-[0_0_20px_rgba(0,245,212,0.4)]" />
+    <div className="relative group shrink-0 pointer-events-none sm:pointer-events-auto touch-pan-y">
+      <div className="absolute -inset-2 bg-cyan-500/15 rounded-full blur-xl opacity-40 pointer-events-none" />
+      <canvas
+        ref={canvasRef}
+        className="relative w-28 h-28 sm:w-36 sm:h-36 pointer-events-none sm:pointer-events-auto"
+        style={{ touchAction: "pan-y" }}
+      />
     </div>
   );
 };
@@ -470,7 +503,7 @@ const Toast: React.FC<{ message: string | null; onClose: () => void }> = ({ mess
       initial={{ opacity: 0, y: 30, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.9 }}
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#090E1A] border border-[#00F5D4]/60 text-white font-mono text-xs shadow-[0_0_30px_rgba(0,245,212,0.4)] backdrop-blur-xl"
+      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#090E1A] border border-[#00F5D4]/60 text-white font-mono text-xs shadow-[0_0_30px_rgba(0,245,212,0.4)] backdrop-blur-md"
     >
       <Check className="w-4 h-4 text-[#00F5D4]" />
       <span>{message}</span>
@@ -479,7 +512,7 @@ const Toast: React.FC<{ message: string | null; onClose: () => void }> = ({ mess
 };
 
 // =========================================================================
-// 6. 3D GYRO PERSPECTIVE TILT
+// 6. 3D GYRO PERSPECTIVE TILT (DESKTOP ONLY)
 // =========================================================================
 const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; intensity?: number }> = ({
   children,
@@ -497,7 +530,7 @@ const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; inte
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-intensity, intensity]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
+    if (!ref.current || window.innerWidth < 768) return;
     const rect = ref.current.getBoundingClientRect();
     x.set((e.clientX - rect.left) / rect.width - 0.5);
     y.set((e.clientY - rect.top) / rect.height - 0.5);
@@ -514,7 +547,7 @@ const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; inte
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className={className}
+      className={`will-change-transform ${className}`}
     >
       {children}
     </motion.div>
@@ -522,7 +555,7 @@ const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; inte
 };
 
 // =========================================================================
-// 7. MOTION HELPERS
+// 7. MOTION HELPERS & OPTIMIZED BIO (WORD-LEVEL ANIMATION)
 // =========================================================================
 const FadeIn: React.FC<{
   children: React.ReactNode;
@@ -531,11 +564,11 @@ const FadeIn: React.FC<{
   x?: number;
   y?: number;
   className?: string;
-}> = ({ children, delay = 0, duration = 0.6, x = 0, y = 25, className = "" }) => (
+}> = ({ children, delay = 0, duration = 0.5, x = 0, y = 20, className = "" }) => (
   <motion.div
     initial={{ opacity: 0, x, y }}
     whileInView={{ opacity: 1, x: 0, y: 0 }}
-    viewport={{ once: true, margin: "30px", amount: 0.1 }}
+    viewport={{ once: true, margin: "20px", amount: 0.1 }}
     transition={{ duration, delay, ease: [0.25, 0.1, 0.25, 1] }}
     className={className}
   >
@@ -561,46 +594,41 @@ const GlowingPillButton: React.FC<{
   </button>
 );
 
+// High-Performance Word-by-Word Scroll Reveal (Replaces 350+ letter transforms)
 const AnimatedBioText: React.FC<{ text: string }> = ({ text }) => {
   const targetRef = useRef<HTMLParagraphElement>(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
-    offset: ["start 0.85", "end 0.35"],
+    offset: ["start 0.9", "end 0.5"],
   });
 
   const words = text.split(" ");
-  const totalCharacters = text.length;
-  let charCounter = 0;
 
   return (
     <p
       ref={targetRef}
-      style={{ fontSize: "clamp(1.1rem, 2vw, 1.45rem)" }}
-      className="text-[#D7E2EA] font-normal text-center leading-relaxed max-w-[780px] flex flex-wrap justify-center"
+      style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.35rem)" }}
+      className="text-[#D7E2EA] font-normal text-center leading-relaxed max-w-[780px] flex flex-wrap justify-center gap-x-[0.3em] gap-y-1 will-change-transform"
     >
-      {words.map((word, wIdx) => (
-        <span key={wIdx} className="inline-block whitespace-nowrap mr-[0.25em]">
-          {word.split("").map((char, cIdx) => {
-            const start = charCounter / totalCharacters;
-            const end = (charCounter + 1) / totalCharacters;
-            charCounter++;
-            return (
-              <span key={cIdx} className="relative inline-block">
-                <span className="opacity-20 text-gray-500">{char}</span>
-                <motion.span
-                  style={{
-                    opacity: useTransform(scrollYProgress, [start, end], [0.2, 1]),
-                  }}
-                  className="absolute left-0 top-0 text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#00F5D4]"
-                >
-                  {char}
-                </motion.span>
-              </span>
-            );
-          })}
-        </span>
-      ))}
+      {words.map((word, i) => {
+        const start = i / words.length;
+        const end = (i + 1) / words.length;
+        return <Word key={i} word={word} progress={scrollYProgress} range={[start, end]} />;
+      })}
     </p>
+  );
+};
+
+const Word: React.FC<{ word: string; progress: MotionValue<number>; range: [number, number] }> = ({
+  word,
+  progress,
+  range,
+}) => {
+  const opacity = useTransform(progress, range, [0.25, 1]);
+  return (
+    <motion.span style={{ opacity }} className="inline-block text-white transition-opacity">
+      {word}
+    </motion.span>
   );
 };
 
@@ -613,10 +641,10 @@ const HeroSection: React.FC<{
 }> = ({ onContactClick, onDownloadResume }) => (
   <section
     id="hero"
-    className="relative h-screen min-h-[700px] max-h-[1050px] w-full flex flex-col justify-between bg-transparent select-none z-10 px-6 sm:px-10 lg:px-16 pt-5 pb-8 overflow-hidden"
+    className="relative min-h-[100dvh] w-full flex flex-col justify-between bg-transparent select-none z-10 px-4 sm:px-10 lg:px-16 pt-4 pb-8 overflow-hidden"
   >
-    <FadeIn delay={0} y={-20} className="w-full max-w-6xl mx-auto">
-      <header className="flex items-center justify-between w-full backdrop-blur-xl py-3 px-6 rounded-full border border-white/15 bg-[#05070D]/80 shadow-2xl">
+    <FadeIn delay={0} y={-10} className="w-full max-w-6xl mx-auto">
+      <header className="flex items-center justify-between w-full backdrop-blur-md py-3 px-5 sm:px-6 rounded-full border border-white/15 bg-[#05070D]/80 shadow-2xl">
         <a href="#" className="flex items-center gap-2 font-mono text-sm tracking-widest text-[#00F5D4] uppercase">
           <span className="w-2 h-2 rounded-full bg-[#00F5D4] animate-ping" />
           <span>SANGAM.DEV</span>
@@ -639,7 +667,7 @@ const HeroSection: React.FC<{
           </button>
           <button
             onClick={onContactClick}
-            className="text-xs sm:text-sm uppercase tracking-wider font-semibold px-5 py-2 rounded-full border border-[#00F5D4]/50 bg-[#00F5D4]/15 text-[#00F5D4] hover:bg-[#00F5D4] hover:text-black transition-all cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.25)]"
+            className="text-xs sm:text-sm uppercase tracking-wider font-semibold px-4 sm:px-5 py-2 rounded-full border border-[#00F5D4]/50 bg-[#00F5D4]/15 text-[#00F5D4] hover:bg-[#00F5D4] hover:text-black transition-all cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.25)]"
           >
             Let&apos;s Talk
           </button>
@@ -647,27 +675,27 @@ const HeroSection: React.FC<{
       </header>
     </FadeIn>
 
-    <div className="flex flex-col items-center justify-center text-center my-auto py-2 z-10 w-full max-w-5xl mx-auto">
+    <div className="flex flex-col items-center justify-center text-center my-auto py-4 z-10 w-full max-w-5xl mx-auto">
       <FadeIn delay={0.1} y={15}>
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00F5D4]/40 bg-[#00F5D4]/10 mb-4 text-xs sm:text-sm font-mono text-[#00F5D4] shadow-[0_0_20px_rgba(0,245,212,0.2)]">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#00F5D4]/40 bg-[#00F5D4]/10 mb-4 text-xs sm:text-sm font-mono text-[#00F5D4] shadow-[0_0_20px_rgba(0,245,212,0.2)]">
           <Code2 className="w-4 h-4" />
           <span>Full Stack MERN Developer • AI Integrator</span>
         </div>
       </FadeIn>
 
-      <FadeIn delay={0.2} y={25} className="w-full">
-        <h1 className="font-black uppercase tracking-tight leading-none text-[13vw] sm:text-[12vw] md:text-[9.5rem] text-transparent bg-clip-text bg-gradient-to-b from-white via-[#E2E8F0] to-[#00F5D4]/40 drop-shadow-[0_15px_30px_rgba(0,245,212,0.25)] text-center">
+      <FadeIn delay={0.15} y={20} className="w-full">
+        <h1 className="font-black uppercase tracking-tight leading-none text-[12vw] sm:text-[11vw] md:text-[8.5rem] text-transparent bg-clip-text bg-gradient-to-b from-white via-[#E2E8F0] to-[#00F5D4]/40 drop-shadow-[0_15px_30px_rgba(0,245,212,0.25)] text-center">
           Hi, i&apos;m sangam
         </h1>
       </FadeIn>
 
-      <FadeIn delay={0.3} y={20}>
-        <p className="max-w-2xl text-[#D7E2EA]/90 font-light text-sm sm:text-base md:text-lg mt-3 leading-relaxed mx-auto">
+      <FadeIn delay={0.2} y={15}>
+        <p className="max-w-2xl text-[#D7E2EA]/90 font-light text-sm sm:text-base md:text-lg mt-3 leading-relaxed mx-auto px-2">
           Architecting scalable production web applications, high-throughput REST APIs, and dynamic 3D user experiences.
         </p>
       </FadeIn>
 
-      <FadeIn delay={0.4} y={15} className="mt-6 flex flex-wrap items-center justify-center gap-3.5">
+      <FadeIn delay={0.25} y={15} className="mt-6 flex flex-wrap items-center justify-center gap-3.5">
         <GlowingPillButton
           label="Explore Projects"
           onClick={() => {
@@ -684,8 +712,8 @@ const HeroSection: React.FC<{
       </FadeIn>
     </div>
 
-    <FadeIn delay={0.5} y={15} className="w-full max-w-5xl mx-auto">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-5 border-t border-white/15 backdrop-blur-sm text-center">
+    <FadeIn delay={0.3} y={15} className="w-full max-w-5xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/15 backdrop-blur-sm text-center">
         <div className="flex flex-col items-center">
           <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">15+</span>
           <span className="text-[11px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium">RESTful APIs Built</span>
@@ -748,28 +776,28 @@ const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick
     "Full Stack MERN Developer with proven experience building and deploying production-grade web applications. Proficient in React.js, Node.js, Express.js, MongoDB, JWT authentication, and REST API design. Active on GitHub with personal and internship projects, holding IIT Kanpur (MeitY) and industrial certifications. Seeking a Full Stack / Frontend Developer role to deliver scalable, user-focused digital solutions.";
 
   return (
-    <section id="about" className="relative min-h-screen w-full flex flex-col items-center justify-center px-6 sm:px-10 lg:px-16 py-20 z-10 bg-transparent">
+    <section id="about" className="relative min-h-[100dvh] w-full flex flex-col items-center justify-center px-4 sm:px-10 lg:px-16 py-20 z-10 bg-transparent">
       <div className="max-w-5xl mx-auto flex flex-col items-center text-center">
-        <FadeIn delay={0} y={25}>
+        <FadeIn delay={0} y={20}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/40 bg-purple-500/10 text-xs font-mono text-purple-300 uppercase tracking-widest mb-4">
             <span>[ Architecture & Mindset ]</span>
           </div>
-          <h2 className="font-black uppercase tracking-tight text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#00F5D4]/40 mb-8">
+          <h2 className="font-black uppercase tracking-tight text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#00F5D4]/40 mb-8">
             About Me
           </h2>
         </FadeIn>
 
         <AnimatedBioText text={bioSummary} />
 
-        <div className="flex flex-col items-center w-full max-w-5xl mt-12 gap-8">
+        <div className="flex flex-col items-center w-full max-w-5xl mt-10 gap-8">
           <InteractivePolyhedron3D />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full text-left">
             {SKILL_CATEGORIES.map((cat, idx) => {
               const Icon = cat.icon;
               return (
-                <FadeIn key={cat.category} delay={idx * 0.06} y={20}>
-                  <div className="p-5 rounded-2xl bg-[#070B14]/85 border border-white/10 hover:border-cyan-400/60 transition-all duration-300 backdrop-blur-xl shadow-xl h-full flex flex-col justify-between">
+                <FadeIn key={cat.category} delay={idx * 0.05} y={15}>
+                  <div className="p-5 rounded-2xl bg-[#070B14]/90 border border-white/10 hover:border-cyan-400/60 transition-all duration-300 shadow-xl h-full flex flex-col justify-between will-change-transform">
                     <div>
                       <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-xl bg-cyan-500/10 text-[#00F5D4]">
@@ -795,7 +823,7 @@ const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick
           </div>
         </div>
 
-        <FadeIn delay={0.3} y={20} className="mt-10">
+        <FadeIn delay={0.2} y={15} className="mt-10">
           <GlowingPillButton label="Get In Touch" onClick={onContactClick} />
         </FadeIn>
       </div>
@@ -845,14 +873,14 @@ const SERVICES_DATA = [
 ];
 
 const ServicesSection: React.FC = () => (
-  <section id="services" className="px-6 sm:px-10 lg:px-16 py-20 relative z-10 bg-transparent">
+  <section id="services" className="px-4 sm:px-10 lg:px-16 py-20 relative z-10 bg-transparent">
     <div className="max-w-6xl mx-auto">
-      <FadeIn delay={0} y={25}>
+      <FadeIn delay={0} y={20}>
         <div className="text-center mb-12">
           <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono block mb-2">
             [ Engineered Solutions ]
           </span>
-          <h2 className="font-black uppercase tracking-tight text-4xl sm:text-5xl md:text-6xl text-white">
+          <h2 className="font-black uppercase tracking-tight text-3xl sm:text-5xl md:text-6xl text-white">
             Services
           </h2>
         </div>
@@ -862,9 +890,9 @@ const ServicesSection: React.FC = () => (
         {SERVICES_DATA.map((srv, i) => {
           const Icon = srv.icon;
           return (
-            <FadeIn key={srv.num} delay={i * 0.08} y={20} className="h-full">
+            <FadeIn key={srv.num} delay={i * 0.06} y={15} className="h-full">
               <TiltCard3D intensity={8} className="h-full">
-                <div className="h-full p-7 rounded-2xl bg-[#0A0F1D]/80 border border-white/15 hover:border-[#00F5D4]/70 transition-all duration-300 flex flex-col justify-between group shadow-xl backdrop-blur-xl">
+                <div className="h-full p-6 sm:p-7 rounded-2xl bg-[#0A0F1D]/85 border border-white/15 hover:border-[#00F5D4]/70 transition-all duration-300 flex flex-col justify-between group shadow-xl">
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <span className="font-mono text-3xl font-black text-white/30 group-hover:text-[#00F5D4] transition-colors">
@@ -921,11 +949,11 @@ const PROJECTS_DATA = [
     category: "Personal Brand • Frontend UI",
     name: "Personal Portfolio Website & 3D Web",
     description:
-      "Responsive portfolio web experience showcasing production projects, technical skills, and certifications using React.js with mobile-first CSS Flexbox/Grid layout and 3D visual engineering. Deployed on GitHub Pages with Git version control.",
-    liveUrl: "https://github.com/ksangam990-collab",
+      "Responsive portfolio web experience showcasing production projects, technical skills, and certifications using React.js with mobile-first CSS Flexbox/Grid layout and 3D visual engineering. Deployed on custom domain with Git version control.",
+    liveUrl: "https://portfolio.ksangam.dpdns.org",
     githubUrl: "https://github.com/ksangam990-collab",
     image: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80",
-    tech: ["React.js", "JavaScript", "HTML5", "CSS3", "Tailwind CSS", "Framer Motion", "GitHub Pages"],
+    tech: ["React.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Vercel", "Cloudflare DNS"],
   },
   {
     num: "03",
@@ -964,7 +992,7 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
   return (
     <div
       ref={containerRef}
-      className="sticky top-20 sm:top-24 flex items-center justify-center mb-12"
+      className="sticky top-20 sm:top-24 flex items-center justify-center mb-12 will-change-transform"
       style={{
         top: `calc(4.5rem + ${index * 24}px)`,
         zIndex: index + 10,
@@ -975,25 +1003,25 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
           scale,
           transformOrigin: "top center",
         }}
-        className="w-full max-w-5xl lg:max-w-6xl bg-[#090E1A]/95 backdrop-blur-2xl border-2 border-cyan-500/40 rounded-3xl sm:rounded-[36px] p-6 sm:p-8 md:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.85)] hover:border-cyan-400 transition-colors"
+        className="w-full max-w-5xl lg:max-w-6xl bg-[#090E1A]/95 border-2 border-cyan-500/40 rounded-3xl sm:rounded-[36px] p-5 sm:p-8 md:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.85)] hover:border-cyan-400 transition-colors will-change-transform"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
           <div className="lg:col-span-7 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="font-mono font-black text-3xl sm:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#7B2CBF]">
+                <span className="font-mono font-black text-2xl sm:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#7B2CBF]">
                   {project.num}
                 </span>
-                <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono px-3.5 py-1 rounded-full bg-[#00F5D4]/10 border border-[#00F5D4]/30">
+                <span className="text-[11px] sm:text-xs uppercase tracking-widest text-[#00F5D4] font-mono px-3.5 py-1 rounded-full bg-[#00F5D4]/10 border border-[#00F5D4]/30">
                   {project.category}
                 </span>
               </div>
 
-              <h3 className="font-bold text-2xl sm:text-3xl md:text-4xl uppercase tracking-tight text-white mb-3">
+              <h3 className="font-bold text-xl sm:text-3xl md:text-4xl uppercase tracking-tight text-white mb-3">
                 {project.name}
               </h3>
 
-              <p className="text-sm sm:text-base text-[#D7E2EA]/85 font-light leading-relaxed mb-5">
+              <p className="text-xs sm:text-base text-[#D7E2EA]/85 font-light leading-relaxed mb-5">
                 {project.description}
               </p>
 
@@ -1001,7 +1029,7 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
                 {project.tech.map((t) => (
                   <span
                     key={t}
-                    className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-[#00F5D4]"
+                    className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] sm:text-xs font-mono text-[#00F5D4]"
                   >
                     {t}
                   </span>
@@ -1014,7 +1042,7 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
                 href={project.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-cyan-400/50 bg-cyan-400/15 text-[#00F5D4] font-medium uppercase tracking-widest px-6 py-2.5 text-xs sm:text-sm hover:bg-[#00F5D4] hover:text-black transition-all shadow-[0_0_15px_rgba(0,245,212,0.25)]"
+                className="inline-flex items-center gap-2 rounded-full border border-cyan-400/50 bg-cyan-400/15 text-[#00F5D4] font-medium uppercase tracking-widest px-5 sm:px-6 py-2.5 text-xs sm:text-sm hover:bg-[#00F5D4] hover:text-black transition-all shadow-[0_0_15px_rgba(0,245,212,0.25)]"
               >
                 <span>Live Deployment</span>
                 <ExternalLink className="w-4 h-4" />
@@ -1024,13 +1052,14 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-full border border-white/20 text-white hover:bg-white/10 transition-colors"
+                aria-label="GitHub Repository"
               >
                 <Github className="w-5 h-5" />
               </a>
             </div>
           </div>
 
-          <div className="lg:col-span-5 h-[230px] sm:h-[280px] md:h-[320px] w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[#151A27] border border-white/10 relative group">
+          <div className="lg:col-span-5 h-[200px] sm:h-[280px] md:h-[320px] w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[#151A27] border border-white/10 relative group">
             <img
               src={project.image}
               alt={project.name}
@@ -1062,26 +1091,26 @@ const ProjectsSection: React.FC = () => {
     <section
       id="projects"
       ref={containerRef}
-      className="py-24 px-6 sm:px-10 lg:px-16 relative z-10 bg-transparent min-h-[160vh]"
+      className="py-20 sm:py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent min-h-[140vh]"
     >
       <div className="max-w-6xl mx-auto">
-        <FadeIn delay={0} y={25}>
+        <FadeIn delay={0} y={20}>
           <div className="text-center mb-8">
             <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono block mb-2">
               [ Featured Case Studies ]
             </span>
-            <h2 className="font-black uppercase tracking-tight text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#7B2CBF]/40">
+            <h2 className="font-black uppercase tracking-tight text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#7B2CBF]/40">
               Projects
             </h2>
           </div>
         </FadeIn>
 
-        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-14">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-12">
           {FILTER_TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+              className={`px-4 sm:px-5 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 cursor-pointer ${
                 activeTab === tab
                   ? "bg-[#00F5D4] text-black font-semibold shadow-[0_0_20px_rgba(0,245,212,0.4)]"
                   : "bg-[#0A0E17]/80 text-[#D7E2EA]/70 border border-white/10 hover:border-cyan-400/50"
@@ -1117,14 +1146,14 @@ const ProjectsSection: React.FC = () => {
 // 12. EXPERIENCE, EDUCATION & CERTIFICATIONS
 // =========================================================================
 const ExperienceSection: React.FC = () => (
-  <section id="experience" className="py-20 px-6 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10">
+  <section id="experience" className="py-20 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10">
     <div className="max-w-6xl mx-auto">
-      <FadeIn delay={0} y={25}>
+      <FadeIn delay={0} y={20}>
         <div className="text-center mb-12">
           <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono block mb-2">
             [ Comprehensive Record ]
           </span>
-          <h2 className="font-black uppercase tracking-tight text-4xl sm:text-5xl text-white">
+          <h2 className="font-black uppercase tracking-tight text-3xl sm:text-5xl text-white">
             Experience & Education
           </h2>
         </div>
@@ -1132,8 +1161,8 @@ const ExperienceSection: React.FC = () => (
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="flex flex-col gap-6">
-          <FadeIn delay={0.1} y={20}>
-            <div className="p-7 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl">
+          <FadeIn delay={0.1} y={15}>
+            <div className="p-6 sm:p-8 rounded-2xl bg-[#0A0E17]/90 border border-white/15 shadow-2xl">
               <div className="flex items-center gap-2 text-[#00F5D4] font-mono text-xs uppercase mb-2">
                 <Briefcase className="w-4 h-4" />
                 <span>Internship Experience</span>
@@ -1166,8 +1195,8 @@ const ExperienceSection: React.FC = () => (
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.15} y={20}>
-            <div className="p-7 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl">
+          <FadeIn delay={0.15} y={15}>
+            <div className="p-6 sm:p-8 rounded-2xl bg-[#0A0E17]/90 border border-white/15 shadow-2xl">
               <div className="flex items-center gap-2 text-yellow-400 font-mono text-xs uppercase mb-2">
                 <Award className="w-4 h-4" />
                 <span>Government Certified Training</span>
@@ -1186,18 +1215,18 @@ const ExperienceSection: React.FC = () => (
         </div>
 
         <div className="flex flex-col gap-6">
-          <FadeIn delay={0.2} y={20}>
-            <div className="p-7 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl h-full flex flex-col justify-between">
+          <FadeIn delay={0.2} y={15}>
+            <div className="p-6 sm:p-8 rounded-2xl bg-[#0A0E17]/90 border border-white/15 shadow-2xl h-full flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-purple-400 font-mono text-xs uppercase mb-3">
                   <GraduationCap className="w-4 h-4" />
                   <span>Academic Qualifications</span>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-5">
                   <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-white font-bold text-base">B.Tech, Computer Science & Engineering</h4>
+                      <h4 className="text-white font-bold text-sm sm:text-base">B.Tech, Computer Science & Engineering</h4>
                       <span className="text-xs font-mono text-[#00F5D4]">2025 – 2028</span>
                     </div>
                     <p className="text-xs sm:text-sm text-[#D7E2EA]/80 mt-1">
@@ -1210,7 +1239,7 @@ const ExperienceSection: React.FC = () => (
 
                   <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-white font-bold text-base">Diploma, Computer Science & Engineering</h4>
+                      <h4 className="text-white font-bold text-sm sm:text-base">Diploma, Computer Science & Engineering</h4>
                       <span className="text-xs font-mono text-purple-400">2023 – 2025</span>
                     </div>
                     <p className="text-xs sm:text-sm text-[#D7E2EA]/80 mt-1">
@@ -1220,7 +1249,7 @@ const ExperienceSection: React.FC = () => (
 
                   <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-white font-bold text-base">Class XII, PCM</h4>
+                      <h4 className="text-white font-bold text-sm sm:text-base">Class XII, PCM</h4>
                       <span className="text-xs font-mono text-gray-400">2019 – 2021</span>
                     </div>
                     <p className="text-xs sm:text-sm text-[#D7E2EA]/80 mt-1">
@@ -1265,16 +1294,17 @@ const ContactModal: React.FC<{
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 15 }}
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 15 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
             className="relative w-full max-w-xl bg-[#0D121D] border-2 border-[#00F5D4]/50 rounded-3xl p-6 sm:p-8 text-[#D7E2EA] shadow-[0_0_80px_rgba(0,245,212,0.3)] max-h-[90vh] overflow-y-auto"
           >
             <button
               onClick={onClose}
               className="absolute top-5 right-5 p-2 rounded-full bg-white/10 hover:bg-[#00F5D4]/20 text-white transition-colors cursor-pointer"
+              aria-label="Close Contact"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1303,7 +1333,7 @@ const ContactModal: React.FC<{
                 <button
                   onClick={() => onCopy("ksangam990@gmail.com", "Email address copied to clipboard")}
                   title="Copy Email"
-                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white"
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white cursor-pointer"
                 >
                   <Copy className="w-3.5 h-3.5" />
                 </button>
@@ -1322,7 +1352,7 @@ const ContactModal: React.FC<{
                 <button
                   onClick={() => onCopy("+919693041674", "Phone number copied to clipboard")}
                   title="Copy Phone"
-                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white"
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white cursor-pointer"
                 >
                   <Copy className="w-3.5 h-3.5" />
                 </button>
@@ -1367,7 +1397,7 @@ const ContactModal: React.FC<{
                 <Download className="w-3.5 h-3.5" />
                 <span>Download Resume</span>
               </button>
-              <span className="text-[11px] text-[#D7E2EA]/50 font-mono">slotly.ksangam.dpdns.org</span>
+              <span className="text-[11px] text-[#D7E2EA]/50 font-mono">portfolio.ksangam.dpdns.org</span>
             </div>
           </motion.div>
         </div>
@@ -1380,7 +1410,7 @@ const ContactModal: React.FC<{
 // 14. FOOTER
 // =========================================================================
 const Footer: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) => (
-  <footer className="border-t border-white/10 py-10 px-6 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-4 text-[#D7E2EA]/60 text-xs sm:text-sm relative z-10 bg-transparent">
+  <footer className="border-t border-white/10 py-10 px-4 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-4 text-[#D7E2EA]/60 text-xs sm:text-sm relative z-10 bg-transparent">
     <div>
       <p className="uppercase tracking-wider font-semibold text-white">
         Sangam Kumar — Full Stack MERN Developer
@@ -1411,19 +1441,27 @@ export default function App() {
     document.title = "Sangam Kumar — Full Stack MERN Developer";
 
     const sectionIds = ["hero", "about", "services", "projects", "experience"];
+    let ticking = false;
+
     const handleScroll = () => {
-      const scrollPos = window.scrollY + 250;
-      for (const id of sectionIds) {
-        const el = document.getElementById(id);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          const top = rect.top + window.scrollY;
-          const height = el.offsetHeight;
-          if (scrollPos >= top && scrollPos < top + height) {
-            setActiveSection(id);
-            break;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollPos = window.scrollY + 250;
+          for (const id of sectionIds) {
+            const el = document.getElementById(id);
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              const top = rect.top + window.scrollY;
+              const height = el.offsetHeight;
+              if (scrollPos >= top && scrollPos < top + height) {
+                setActiveSection(id);
+                break;
+              }
+            }
           }
-        }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
@@ -1446,7 +1484,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#05070D] text-[#D7E2EA] selection:bg-[#00F5D4] selection:text-black font-kanit relative">
+    <div className="min-h-screen bg-[#05070D] text-[#D7E2EA] selection:bg-[#00F5D4] selection:text-black font-sans relative overflow-x-hidden">
       <CustomCyberCursor />
       <Interactive3DMatrixTerrain />
       <ScrollHUD activeSection={activeSection} />
