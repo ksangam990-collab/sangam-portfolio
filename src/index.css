@@ -10,30 +10,38 @@
   padding: 0;
 }
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-    touch-action: pan-y;
-  }
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 100%;
+}
 
-  body,
-  #root {
-    background-color: #05070d;
-    color: #d7e2ea;
-    font-family:
-      "Kanit",
-      system-ui,
-      -apple-system,
-      sans-serif;
-    overflow-x: hidden;
-    overscroll-behavior-y: none;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+body {
+  background-color: #05070d;
+  color: #d7e2ea;
+  font-family:
+    "Kanit",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  overflow-x: hidden;
+  overflow-y: visible;
+  width: 100%;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  canvas {
-    touch-action: pan-y !important;
-  }
+#root {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Ensure background canvases pass all touch/mouse wheel events to the page */
+canvas {
+  pointer-events: none !important;
 }
 
 .hero-heading {

@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 
 // =========================================================================
-// 1. HARDWARE-ACCELERATED CUSTOM CYBER CURSOR (DISABLED ON TOUCH DEVICES)
+// 1. HARDWARE-ACCELERATED CUSTOM CYBER CURSOR (DESKTOP ONLY)
 // =========================================================================
 const CustomCyberCursor: React.FC = () => {
   const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
@@ -108,7 +108,7 @@ const CustomCyberCursor: React.FC = () => {
 };
 
 // =========================================================================
-// 2. 3D MATRIX TERRAIN CANVAS (TOUCH-SAFE & MOBILE THROTTLED)
+// 2. 3D MATRIX TERRAIN CANVAS (PASS-THROUGH NO-BLOCK CANVAS)
 // =========================================================================
 const Interactive3DMatrixTerrain: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -204,7 +204,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       });
 
-      // 2. Click Shockwaves (Desktop Only)
+      // 2. Shockwaves
       if (!isMobile) {
         for (let i = ripples.length - 1; i >= 0; i--) {
           const rip = ripples[i];
@@ -223,7 +223,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       }
 
-      // 3. 3D Terrain Perspective Grid
+      // 3. 3D Terrain Grid
       const fov = 380;
       const cameraY = -150 - mouseY;
       const cameraZ = 450;
@@ -311,13 +311,12 @@ const Interactive3DMatrixTerrain: React.FC = () => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0 opacity-70 w-full h-full"
-      style={{ touchAction: "pan-y" }}
     />
   );
 };
 
 // =========================================================================
-// 3. 3D WIREFRAME ICOSAHEDRON (TOUCH-SAFE)
+// 3. 3D WIREFRAME ICOSAHEDRON
 // =========================================================================
 const InteractivePolyhedron3D: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -421,12 +420,11 @@ const InteractivePolyhedron3D: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative group shrink-0 pointer-events-none sm:pointer-events-auto touch-pan-y">
+    <div className="relative group shrink-0 pointer-events-none">
       <div className="absolute -inset-2 bg-cyan-500/15 rounded-full blur-xl opacity-40 pointer-events-none" />
       <canvas
         ref={canvasRef}
-        className="relative w-28 h-28 sm:w-36 sm:h-36 pointer-events-none sm:pointer-events-auto"
-        style={{ touchAction: "pan-y" }}
+        className="relative w-28 h-28 sm:w-36 sm:h-36 pointer-events-none"
       />
     </div>
   );
@@ -448,7 +446,7 @@ const ScrollHUD: React.FC<{ activeSection: string }> = ({ activeSection }) => {
   const heightPercent = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   return (
-    <div className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center gap-6">
+    <div className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center gap-6 pointer-events-auto">
       <div className="relative w-[2px] h-36 bg-white/10 rounded-full overflow-hidden">
         <motion.div
           style={{ height: heightPercent }}
@@ -465,7 +463,7 @@ const ScrollHUD: React.FC<{ activeSection: string }> = ({ activeSection }) => {
               onClick={() => {
                 document.getElementById(sec.id)?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="group relative flex items-center justify-end"
+              className="group relative flex items-center justify-end cursor-pointer"
             >
               <span className="absolute right-6 text-[10px] font-mono text-[#00F5D4] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest whitespace-nowrap bg-[#0A0E17]/90 px-2 py-0.5 rounded border border-white/10">
                 {sec.label}
@@ -512,7 +510,7 @@ const Toast: React.FC<{ message: string | null; onClose: () => void }> = ({ mess
 };
 
 // =========================================================================
-// 6. 3D GYRO PERSPECTIVE TILT (DESKTOP ONLY)
+// 6. 3D PERSPECTIVE TILT
 // =========================================================================
 const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; intensity?: number }> = ({
   children,
@@ -555,7 +553,7 @@ const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; inte
 };
 
 // =========================================================================
-// 7. MOTION HELPERS & OPTIMIZED BIO (WORD-LEVEL ANIMATION)
+// 7. MOTION HELPERS
 // =========================================================================
 const FadeIn: React.FC<{
   children: React.ReactNode;
@@ -568,7 +566,7 @@ const FadeIn: React.FC<{
   <motion.div
     initial={{ opacity: 0, x, y }}
     whileInView={{ opacity: 1, x: 0, y: 0 }}
-    viewport={{ once: true, margin: "20px", amount: 0.1 }}
+    viewport={{ once: true, margin: "40px", amount: 0.1 }}
     transition={{ duration, delay, ease: [0.25, 0.1, 0.25, 1] }}
     className={className}
   >
@@ -594,12 +592,11 @@ const GlowingPillButton: React.FC<{
   </button>
 );
 
-// High-Performance Word-by-Word Scroll Reveal (Replaces 350+ letter transforms)
 const AnimatedBioText: React.FC<{ text: string }> = ({ text }) => {
   const targetRef = useRef<HTMLParagraphElement>(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
-    offset: ["start 0.9", "end 0.5"],
+    offset: ["start 0.9", "end 0.6"],
   });
 
   const words = text.split(" ");
@@ -608,7 +605,7 @@ const AnimatedBioText: React.FC<{ text: string }> = ({ text }) => {
     <p
       ref={targetRef}
       style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.35rem)" }}
-      className="text-[#D7E2EA] font-normal text-center leading-relaxed max-w-[780px] flex flex-wrap justify-center gap-x-[0.3em] gap-y-1 will-change-transform"
+      className="text-[#D7E2EA] font-normal text-center leading-relaxed max-w-[780px] flex flex-wrap justify-center gap-x-[0.3em] gap-y-1"
     >
       {words.map((word, i) => {
         const start = i / words.length;
@@ -624,9 +621,9 @@ const Word: React.FC<{ word: string; progress: MotionValue<number>; range: [numb
   progress,
   range,
 }) => {
-  const opacity = useTransform(progress, range, [0.25, 1]);
+  const opacity = useTransform(progress, range, [0.35, 1]);
   return (
-    <motion.span style={{ opacity }} className="inline-block text-white transition-opacity">
+    <motion.span style={{ opacity }} className="inline-block text-white">
       {word}
     </motion.span>
   );
@@ -641,7 +638,7 @@ const HeroSection: React.FC<{
 }> = ({ onContactClick, onDownloadResume }) => (
   <section
     id="hero"
-    className="relative min-h-[100dvh] w-full flex flex-col justify-between bg-transparent select-none z-10 px-4 sm:px-10 lg:px-16 pt-4 pb-8 overflow-hidden"
+    className="relative min-h-[95vh] w-full flex flex-col justify-between bg-transparent z-10 px-4 sm:px-10 lg:px-16 pt-4 pb-8"
   >
     <FadeIn delay={0} y={-10} className="w-full max-w-6xl mx-auto">
       <header className="flex items-center justify-between w-full backdrop-blur-md py-3 px-5 sm:px-6 rounded-full border border-white/15 bg-[#05070D]/80 shadow-2xl">
@@ -675,7 +672,7 @@ const HeroSection: React.FC<{
       </header>
     </FadeIn>
 
-    <div className="flex flex-col items-center justify-center text-center my-auto py-4 z-10 w-full max-w-5xl mx-auto">
+    <div className="flex flex-col items-center justify-center text-center my-auto py-6 z-10 w-full max-w-5xl mx-auto">
       <FadeIn delay={0.1} y={15}>
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#00F5D4]/40 bg-[#00F5D4]/10 mb-4 text-xs sm:text-sm font-mono text-[#00F5D4] shadow-[0_0_20px_rgba(0,245,212,0.2)]">
           <Code2 className="w-4 h-4" />
@@ -736,7 +733,7 @@ const HeroSection: React.FC<{
 );
 
 // =========================================================================
-// 9. ABOUT SECTION (COMPLETE SKILLS MATRIX)
+// 9. ABOUT SECTION
 // =========================================================================
 const SKILL_CATEGORIES = [
   {
@@ -776,7 +773,7 @@ const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick
     "Full Stack MERN Developer with proven experience building and deploying production-grade web applications. Proficient in React.js, Node.js, Express.js, MongoDB, JWT authentication, and REST API design. Active on GitHub with personal and internship projects, holding IIT Kanpur (MeitY) and industrial certifications. Seeking a Full Stack / Frontend Developer role to deliver scalable, user-focused digital solutions.";
 
   return (
-    <section id="about" className="relative min-h-[100dvh] w-full flex flex-col items-center justify-center px-4 sm:px-10 lg:px-16 py-20 z-10 bg-transparent">
+    <section id="about" className="relative w-full flex flex-col items-center justify-center px-4 sm:px-10 lg:px-16 py-24 z-10 bg-transparent">
       <div className="max-w-5xl mx-auto flex flex-col items-center text-center">
         <FadeIn delay={0} y={20}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/40 bg-purple-500/10 text-xs font-mono text-purple-300 uppercase tracking-widest mb-4">
@@ -789,7 +786,7 @@ const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick
 
         <AnimatedBioText text={bioSummary} />
 
-        <div className="flex flex-col items-center w-full max-w-5xl mt-10 gap-8">
+        <div className="flex flex-col items-center w-full max-w-5xl mt-12 gap-8">
           <InteractivePolyhedron3D />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full text-left">
@@ -797,7 +794,7 @@ const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick
               const Icon = cat.icon;
               return (
                 <FadeIn key={cat.category} delay={idx * 0.05} y={15}>
-                  <div className="p-5 rounded-2xl bg-[#070B14]/90 border border-white/10 hover:border-cyan-400/60 transition-all duration-300 shadow-xl h-full flex flex-col justify-between will-change-transform">
+                  <div className="p-5 rounded-2xl bg-[#070B14]/90 border border-white/10 hover:border-cyan-400/60 transition-all duration-300 shadow-xl h-full flex flex-col justify-between">
                     <div>
                       <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-xl bg-cyan-500/10 text-[#00F5D4]">
@@ -873,7 +870,7 @@ const SERVICES_DATA = [
 ];
 
 const ServicesSection: React.FC = () => (
-  <section id="services" className="px-4 sm:px-10 lg:px-16 py-20 relative z-10 bg-transparent">
+  <section id="services" className="px-4 sm:px-10 lg:px-16 py-24 relative z-10 bg-transparent">
     <div className="max-w-6xl mx-auto">
       <FadeIn delay={0} y={20}>
         <div className="text-center mb-12">
@@ -992,7 +989,7 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
   return (
     <div
       ref={containerRef}
-      className="sticky top-20 sm:top-24 flex items-center justify-center mb-12 will-change-transform"
+      className="sticky top-20 sm:top-24 flex items-center justify-center mb-12"
       style={{
         top: `calc(4.5rem + ${index * 24}px)`,
         zIndex: index + 10,
@@ -1003,7 +1000,7 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
           scale,
           transformOrigin: "top center",
         }}
-        className="w-full max-w-5xl lg:max-w-6xl bg-[#090E1A]/95 border-2 border-cyan-500/40 rounded-3xl sm:rounded-[36px] p-5 sm:p-8 md:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.85)] hover:border-cyan-400 transition-colors will-change-transform"
+        className="w-full max-w-5xl lg:max-w-6xl bg-[#090E1A]/95 border-2 border-cyan-500/40 rounded-3xl sm:rounded-[36px] p-5 sm:p-8 md:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.85)] hover:border-cyan-400 transition-colors"
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
           <div className="lg:col-span-7 flex flex-col justify-between">
@@ -1091,7 +1088,7 @@ const ProjectsSection: React.FC = () => {
     <section
       id="projects"
       ref={containerRef}
-      className="py-20 sm:py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent min-h-[140vh]"
+      className="py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent min-h-[140vh]"
     >
       <div className="max-w-6xl mx-auto">
         <FadeIn delay={0} y={20}>
@@ -1146,7 +1143,7 @@ const ProjectsSection: React.FC = () => {
 // 12. EXPERIENCE, EDUCATION & CERTIFICATIONS
 // =========================================================================
 const ExperienceSection: React.FC = () => (
-  <section id="experience" className="py-20 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10">
+  <section id="experience" className="py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10">
     <div className="max-w-6xl mx-auto">
       <FadeIn delay={0} y={20}>
         <div className="text-center mb-12">
@@ -1272,7 +1269,7 @@ const ExperienceSection: React.FC = () => (
 );
 
 // =========================================================================
-// 13. CONTACT MODAL (WITH 1-CLICK CLIPBOARD COPY)
+// 13. CONTACT MODAL
 // =========================================================================
 const ContactModal: React.FC<{
   isOpen: boolean;
@@ -1284,10 +1281,10 @@ const ContactModal: React.FC<{
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "auto";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "auto";
     };
   }, [isOpen]);
 
@@ -1430,7 +1427,7 @@ const Footer: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) =>
 );
 
 // =========================================================================
-// 15. MAIN APPLICATION ENTRY
+// 15. MAIN ENTRY POINT
 // =========================================================================
 export default function App() {
   const [isContactOpen, setIsContactOpen] = useState(false);
@@ -1484,12 +1481,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#05070D] text-[#D7E2EA] selection:bg-[#00F5D4] selection:text-black font-sans relative overflow-x-hidden">
+    <div className="w-full bg-[#05070D] text-[#D7E2EA] selection:bg-[#00F5D4] selection:text-black font-sans relative">
       <CustomCyberCursor />
       <Interactive3DMatrixTerrain />
       <ScrollHUD activeSection={activeSection} />
 
-      <div className="relative z-10 flex flex-col gap-6">
+      <div className="relative z-10 flex flex-col gap-6 w-full">
         <HeroSection
           onContactClick={() => setIsContactOpen(true)}
           onDownloadResume={handleDownloadResume}
