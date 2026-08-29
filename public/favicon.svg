@@ -1,48 +1,84 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
-    <!-- Cyan to Royal Blue Gradient -->
-    <linearGradient id="cyanBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Top Half: Neon Cyan to Electric Azure -->
+    <linearGradient id="cyanAzure" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#00F5D4" />
-      <stop offset="100%" stop-color="#2563EB" />
+      <stop offset="60%" stop-color="#00BBF9" />
+      <stop offset="100%" stop-color="#3B82F6" />
     </linearGradient>
 
-    <!-- Indigo to Violet Gradient -->
-    <linearGradient id="blueViolet" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Bottom Half: Royal Blue to Vivid Ultraviolet -->
+    <linearGradient id="azureViolet" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#6366F1" />
       <stop offset="100%" stop-color="#A855F7" />
     </linearGradient>
 
-    <!-- Outer Border Glow -->
-    <linearGradient id="borderShine" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00F5D4" stop-opacity="0.8" />
-      <stop offset="50%" stop-color="#3B82F6" stop-opacity="0.3" />
-      <stop offset="100%" stop-color="#A855F7" stop-opacity="0.8" />
+    <!-- Center Interlocking Power Core Gradient -->
+    <linearGradient id="coreGlow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F5D4" />
+      <stop offset="50%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+
+    <!-- Outer Squircle Frame Border -->
+    <linearGradient id="frameBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5D4" stop-opacity="0.85" />
+      <stop offset="50%" stop-color="#3B82F6" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#A855F7" stop-opacity="0.85" />
     </linearGradient>
   </defs>
 
-  <!-- Dark Obsidian Squircle Base (Ensures crisp contrast on dark & light tabs) -->
-  <rect width="512" height="512" rx="120" fill="#060913" />
-  <rect width="500" height="500" x="6" y="6" rx="114" fill="none" stroke="url(#borderShine)" stroke-width="12" />
+  <style>
+    @keyframes cyberPulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 10px rgba(0, 245, 212, 0.45));
+      }
+      50% {
+        filter: drop-shadow(0 0 24px rgba(168, 85, 247, 0.7));
+      }
+    }
+    @keyframes innerGlow {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 1; }
+    }
+    .glyph-group {
+      animation: cyberPulse 4s ease-in-out infinite;
+    }
+    .center-joint {
+      animation: innerGlow 2.5s ease-in-out infinite;
+    }
+  </style>
 
-  <!-- Modern Sharp Geometric 'S' Monogram -->
-  <g>
-    <!-- Upper Wing (Electric Cyan to Blue) -->
+  <!-- Dark Obsidian Container -->
+  <rect width="512" height="512" rx="124" fill="#060913" />
+  <rect width="496" height="496" x="8" y="8" rx="116" stroke="url(#frameBorder)" stroke-width="12" />
+
+  <!-- The "S" Geometric Emblem -->
+  <g class="glyph-group">
+    <!-- Top "S" Wing & Sweep -->
     <path
-      d="M 140 144 H 372 V 224 H 268 L 332 278 H 244 L 140 196 Z"
-      fill="url(#cyanBlue)"
+      d="M 372 135 H 210 C 160 135 125 170 125 220 C 125 260 155 285 205 300 L 290 325"
+      stroke="url(#cyanAzure)"
+      stroke-width="52"
+      stroke-linecap="round"
+      stroke-linejoin="round"
     />
 
-    <!-- Lower Wing (Blue to Electric Violet) -->
+    <!-- Bottom "S" Wing & Sweep -->
     <path
-      d="M 372 368 H 140 V 288 H 244 L 180 234 H 268 L 372 316 Z"
-      fill="url(#blueViolet)"
+      d="M 222 287 L 307 312 C 357 327 387 352 387 392 C 387 442 352 477 302 477 H 140"
+      stroke="url(#azureViolet)"
+      stroke-width="52"
+      stroke-linecap="round"
+      stroke-linejoin="round"
     />
 
-    <!-- Central Precision Diamond Core -->
+    <!-- Center Precision Diamond Focus Node -->
     <polygon
-      points="256,230 286,256 256,282 226,256"
-      fill="#00F5D4"
-      opacity="0.9"
+      class="center-joint"
+      points="256,220 292,256 256,292 220,256"
+      fill="url(#coreGlow)"
     />
   </g>
 </svg>
