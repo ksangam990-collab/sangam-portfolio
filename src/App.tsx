@@ -33,6 +33,106 @@ import {
 } from "lucide-react";
 
 // =========================================================================
+// 0. REAL-TIME 3D CANVAS ROTATING FAVICON ENGINE
+// =========================================================================
+const use3DCanvasFavicon = () => {
+  useEffect(() => {
+    // Only run on desktop/capable browsers to preserve mobile battery
+    if (window.innerWidth < 768) return;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let faviconLink = document.querySelector<HTMLLinkElement>("link[rel*='icon']");
+    if (!faviconLink) {
+      faviconLink = document.createElement("link");
+      faviconLink.rel = "icon";
+      document.head.appendChild(faviconLink);
+    }
+
+    // 3D Matrix Coordinates for "S" Monogram Vertices
+    const nodes: [number, number, number][] = [
+      [-0.7, 0.8, -0.3], [0.7, 0.8, 0.3],
+      [-0.7, 0.1, 0.3],  [0.7, 0.1, -0.3],
+      [-0.7, -0.8, -0.3], [0.7, -0.8, 0.3],
+    ];
+
+    const edges = [
+      [0, 1], [0, 2], [2, 3], [3, 5], [4, 5]
+    ];
+
+    let angle = 0;
+    let intervalId: number;
+
+    const render3DFavicon = () => {
+      ctx.clearRect(0, 0, 32, 32);
+
+      // Dark background badge
+      ctx.fillStyle = "#05070D";
+      ctx.beginPath();
+      ctx.roundRect(0, 0, 32, 32, 8);
+      ctx.fill();
+
+      // Border gradient outline
+      ctx.strokeStyle = "#00F5D4";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      angle += 0.06;
+      const cosA = Math.cos(angle);
+      const sinA = Math.sin(angle);
+
+      // Project 3D points
+      const projected = nodes.map(([x, y, z]) => {
+        const x1 = x * cosA - z * sinA;
+        const z1 = x * sinA + z * cosA;
+        const scale = 11 / (2.2 + z1);
+        return {
+          px: 16 + x1 * scale * 1.5,
+          py: 16 - y * scale * 1.5,
+          z: z1,
+        };
+      });
+
+      // Draw 3D wireframe connecting edges
+      edges.forEach(([start, end]) => {
+        const p1 = projected[start];
+        const p2 = projected[end];
+        ctx.beginPath();
+        ctx.moveTo(p1.px, p1.py);
+        ctx.lineTo(p2.px, p2.py);
+        const grad = ctx.createLinearGradient(p1.px, p1.py, p2.px, p2.py);
+        grad.addColorStop(0, "#00F5D4");
+        grad.addColorStop(1, "#A855F7");
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = "round";
+        ctx.stroke();
+      });
+
+      // Draw illuminated 3D node vertices
+      projected.forEach((p) => {
+        ctx.beginPath();
+        ctx.arc(p.px, p.py, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fill();
+      });
+
+      faviconLink!.href = canvas.toDataURL("image/png");
+    };
+
+    intervalId = window.setInterval(render3DFavicon, 60);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
+};
+
+// =========================================================================
 // 1. HARDWARE-ACCELERATED CUSTOM CYBER CURSOR (DESKTOP ONLY)
 // =========================================================================
 const CustomCyberCursor: React.FC = () => {
@@ -933,7 +1033,7 @@ const ServicesSection: React.FC = () => (
 );
 
 // =========================================================================
-// 11. PROJECTS SECTION (RESPONSIVE FULL-CARD STACKING)
+// 11. PROJECTS SECTION
 // =========================================================================
 const PROJECTS_DATA = [
   {
@@ -1452,6 +1552,8 @@ const Footer: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) =>
 // 15. MAIN APPLICATION ENTRY
 // =========================================================================
 export default function App() {
+  use3DCanvasFavicon();
+
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState("hero");
