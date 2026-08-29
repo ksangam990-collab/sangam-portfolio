@@ -1,36 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Cyan to Royal Blue Gradient -->
+    <linearGradient id="cyanBlue" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#00F5D4" />
-      <stop offset="50%" stop-color="#3B82F6" />
-      <stop offset="100%" stop-color="#9333EA" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+
+    <!-- Indigo to Violet Gradient -->
+    <linearGradient id="blueViolet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+
+    <!-- Outer Border Glow -->
+    <linearGradient id="borderShine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5D4" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#3B82F6" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#A855F7" stop-opacity="0.8" />
     </linearGradient>
   </defs>
 
-  <!-- Left Code Bracket (Vibrant Electric Cyan) -->
-  <path
-    d="M 18 14 L 6 32 L 18 50"
-    stroke="#00F5D4"
-    stroke-width="7"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
+  <!-- Dark Obsidian Squircle Base (Ensures crisp contrast on dark & light tabs) -->
+  <rect width="512" height="512" rx="120" fill="#060913" />
+  <rect width="500" height="500" x="6" y="6" rx="114" fill="none" stroke="url(#borderShine)" stroke-width="12" />
 
-  <!-- Right Code Bracket (Vibrant Electric Violet) -->
-  <path
-    d="M 46 14 L 58 32 L 46 50"
-    stroke="#A855F7"
-    stroke-width="7"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
+  <!-- Modern Sharp Geometric 'S' Monogram -->
+  <g>
+    <!-- Upper Wing (Electric Cyan to Blue) -->
+    <path
+      d="M 140 144 H 372 V 224 H 268 L 332 278 H 244 L 140 196 Z"
+      fill="url(#cyanBlue)"
+    />
 
-  <!-- Bold Central Cyber 'S' Monogram (Full Gradient) -->
-  <path
-    d="M 39 19 C 39 19 35.5 14 28 14 C 20.5 14 19 20 19 24 C 19 31.5 44 28.5 44 40 C 44 49 35.5 50 28 50 C 20 50 16 44 16 44"
-    stroke="url(#neonGradient)"
-    stroke-width="7"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
+    <!-- Lower Wing (Blue to Electric Violet) -->
+    <path
+      d="M 372 368 H 140 V 288 H 244 L 180 234 H 268 L 372 316 Z"
+      fill="url(#blueViolet)"
+    />
+
+    <!-- Central Precision Diamond Core -->
+    <polygon
+      points="256,230 286,256 256,282 226,256"
+      fill="#00F5D4"
+      opacity="0.9"
+    />
+  </g>
 </svg>
