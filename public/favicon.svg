@@ -1,38 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <!-- Cyber Neon Gradient -->
-    <linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#00F5D4" />
-      <stop offset="50%" stop-color="#4361EE" />
-      <stop offset="100%" stop-color="#7B2CBF" />
+      <stop offset="50%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#9333EA" />
     </linearGradient>
-
-    <!-- Border Accent Gradient -->
-    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00F5D4" stop-opacity="0.8" />
-      <stop offset="100%" stop-color="#7B2CBF" stop-opacity="0.8" />
-    </linearGradient>
-
-    <!-- Outer Glow Filter -->
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="14" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
   </defs>
 
-  <!-- Dark Base Tile -->
-  <rect width="512" height="512" rx="120" fill="#05070D" />
-  <rect width="492" height="492" x="10" y="10" rx="110" fill="none" stroke="url(#borderGrad)" stroke-width="14" />
+  <!-- Left Code Bracket (Vibrant Electric Cyan) -->
+  <path
+    d="M 18 14 L 6 32 L 18 50"
+    stroke="#00F5D4"
+    stroke-width="7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
 
-  <!-- Glowing Geometric Core (Code Brackets + Cyber "S" Monogram) -->
-  <g filter="url(#glow)">
-    <!-- Left Angle Bracket -->
-    <path d="M 140 180 L 80 256 L 140 332" fill="none" stroke="#00F5D4" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Right Code Bracket (Vibrant Electric Violet) -->
+  <path
+    d="M 46 14 L 58 32 L 46 50"
+    stroke="#A855F7"
+    stroke-width="7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
 
-    <!-- Right Angle Bracket -->
-    <path d="M 372 180 L 432 256 L 372 332" fill="none" stroke="#7B2CBF" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" />
-
-    <!-- Stylized Monogram Glyph -->
-    <path d="M 310 185 C 310 185 285 155 235 155 C 185 155 175 195 175 215 C 175 260 330 250 330 305 C 330 355 275 355 235 355 C 190 355 170 325 170 325" fill="none" stroke="url(#cyberGrad)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" />
-  </g>
+  <!-- Bold Central Cyber 'S' Monogram (Full Gradient) -->
+  <path
+    d="M 39 19 C 39 19 35.5 14 28 14 C 20.5 14 19 20 19 24 C 19 31.5 44 28.5 44 40 C 44 49 35.5 50 28 50 C 20 50 16 44 16 44"
+    stroke="url(#neonGradient)"
+    stroke-width="7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
 </svg>
