@@ -173,9 +173,9 @@ const Interactive3DMatrixTerrain: React.FC = () => {
       window.addEventListener("mousemove", onMouseMove, { passive: true });
     }
 
-    const cols = isMobile ? 14 : 24;
-    const rows = isMobile ? 12 : 18;
-    const spacing = isMobile ? 80 : 62;
+    const cols = isMobile ? 16 : 24;
+    const rows = isMobile ? 14 : 18;
+    const spacing = isMobile ? 70 : 62;
     let time = 0;
 
     const render = () => {
@@ -204,7 +204,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       });
 
-      // 2. Shockwaves
+      // 2. Click Shockwaves
       if (!isMobile) {
         for (let i = ripples.length - 1; i >= 0; i--) {
           const rip = ripples[i];
@@ -223,7 +223,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       }
 
-      // 3. 3D Terrain Grid
+      // 3. 3D Terrain Perspective Grid
       const fov = 380;
       const cameraY = -150 - mouseY;
       const cameraZ = 450;
@@ -510,7 +510,7 @@ const Toast: React.FC<{ message: string | null; onClose: () => void }> = ({ mess
 };
 
 // =========================================================================
-// 6. 3D PERSPECTIVE TILT
+// 6. 3D GYRO PERSPECTIVE TILT (DESKTOP ONLY)
 // =========================================================================
 const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; intensity?: number }> = ({
   children,
@@ -545,7 +545,7 @@ const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; inte
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className={`will-change-transform ${className}`}
+      className={className}
     >
       {children}
     </motion.div>
@@ -553,7 +553,7 @@ const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; inte
 };
 
 // =========================================================================
-// 7. MOTION HELPERS
+// 7. MOTION HELPERS & ULTRA-SMOOTH BIO ANIMATION
 // =========================================================================
 const FadeIn: React.FC<{
   children: React.ReactNode;
@@ -566,7 +566,7 @@ const FadeIn: React.FC<{
   <motion.div
     initial={{ opacity: 0, x, y }}
     whileInView={{ opacity: 1, x: 0, y: 0 }}
-    viewport={{ once: true, margin: "40px", amount: 0.1 }}
+    viewport={{ once: true, margin: "20px", amount: 0.1 }}
     transition={{ duration, delay, ease: [0.25, 0.1, 0.25, 1] }}
     className={className}
   >
@@ -596,7 +596,7 @@ const AnimatedBioText: React.FC<{ text: string }> = ({ text }) => {
   const targetRef = useRef<HTMLParagraphElement>(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
-    offset: ["start 0.9", "end 0.6"],
+    offset: ["start 0.88", "end 0.5"],
   });
 
   const words = text.split(" ");
@@ -604,28 +604,34 @@ const AnimatedBioText: React.FC<{ text: string }> = ({ text }) => {
   return (
     <p
       ref={targetRef}
-      style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.35rem)" }}
-      className="text-[#D7E2EA] font-normal text-center leading-relaxed max-w-[780px] flex flex-wrap justify-center gap-x-[0.3em] gap-y-1"
+      style={{ fontSize: "clamp(1.1rem, 2vw, 1.45rem)" }}
+      className="text-[#D7E2EA] font-normal text-center leading-relaxed max-w-[780px] flex flex-wrap justify-center"
     >
       {words.map((word, i) => {
         const start = i / words.length;
         const end = (i + 1) / words.length;
-        return <Word key={i} word={word} progress={scrollYProgress} range={[start, end]} />;
+        return <AnimatedWord key={i} word={word} progress={scrollYProgress} range={[start, end]} />;
       })}
     </p>
   );
 };
 
-const Word: React.FC<{ word: string; progress: MotionValue<number>; range: [number, number] }> = ({
-  word,
-  progress,
-  range,
-}) => {
-  const opacity = useTransform(progress, range, [0.35, 1]);
+const AnimatedWord: React.FC<{
+  word: string;
+  progress: MotionValue<number>;
+  range: [number, number];
+}> = ({ word, progress, range }) => {
+  const opacity = useTransform(progress, range, [0.2, 1]);
   return (
-    <motion.span style={{ opacity }} className="inline-block text-white">
-      {word}
-    </motion.span>
+    <span className="relative inline-block mr-[0.28em] my-[0.05em]">
+      <span className="opacity-20 text-gray-500">{word}</span>
+      <motion.span
+        style={{ opacity }}
+        className="absolute left-0 top-0 text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#00F5D4]"
+      >
+        {word}
+      </motion.span>
+    </span>
   );
 };
 
@@ -638,10 +644,10 @@ const HeroSection: React.FC<{
 }> = ({ onContactClick, onDownloadResume }) => (
   <section
     id="hero"
-    className="relative min-h-[95vh] w-full flex flex-col justify-between bg-transparent z-10 px-4 sm:px-10 lg:px-16 pt-4 pb-8"
+    className="relative min-h-[95vh] w-full flex flex-col justify-between bg-transparent select-none z-10 px-4 sm:px-10 lg:px-16 pt-5 pb-8"
   >
     <FadeIn delay={0} y={-10} className="w-full max-w-6xl mx-auto">
-      <header className="flex items-center justify-between w-full backdrop-blur-md py-3 px-5 sm:px-6 rounded-full border border-white/15 bg-[#05070D]/80 shadow-2xl">
+      <header className="flex items-center justify-between w-full backdrop-blur-xl py-3 px-5 sm:px-6 rounded-full border border-white/15 bg-[#05070D]/80 shadow-2xl">
         <a href="#" className="flex items-center gap-2 font-mono text-sm tracking-widest text-[#00F5D4] uppercase">
           <span className="w-2 h-2 rounded-full bg-[#00F5D4] animate-ping" />
           <span>SANGAM.DEV</span>
@@ -672,9 +678,9 @@ const HeroSection: React.FC<{
       </header>
     </FadeIn>
 
-    <div className="flex flex-col items-center justify-center text-center my-auto py-6 z-10 w-full max-w-5xl mx-auto">
+    <div className="flex flex-col items-center justify-center text-center my-auto py-4 z-10 w-full max-w-5xl mx-auto">
       <FadeIn delay={0.1} y={15}>
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#00F5D4]/40 bg-[#00F5D4]/10 mb-4 text-xs sm:text-sm font-mono text-[#00F5D4] shadow-[0_0_20px_rgba(0,245,212,0.2)]">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00F5D4]/40 bg-[#00F5D4]/10 mb-4 text-xs sm:text-sm font-mono text-[#00F5D4] shadow-[0_0_20px_rgba(0,245,212,0.2)]">
           <Code2 className="w-4 h-4" />
           <span>Full Stack MERN Developer • AI Integrator</span>
         </div>
@@ -733,7 +739,7 @@ const HeroSection: React.FC<{
 );
 
 // =========================================================================
-// 9. ABOUT SECTION
+// 9. ABOUT SECTION (COMPLETE SKILLS MATRIX)
 // =========================================================================
 const SKILL_CATEGORIES = [
   {
@@ -773,7 +779,7 @@ const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick
     "Full Stack MERN Developer with proven experience building and deploying production-grade web applications. Proficient in React.js, Node.js, Express.js, MongoDB, JWT authentication, and REST API design. Active on GitHub with personal and internship projects, holding IIT Kanpur (MeitY) and industrial certifications. Seeking a Full Stack / Frontend Developer role to deliver scalable, user-focused digital solutions.";
 
   return (
-    <section id="about" className="relative w-full flex flex-col items-center justify-center px-4 sm:px-10 lg:px-16 py-24 z-10 bg-transparent">
+    <section id="about" className="relative min-h-[90vh] w-full flex flex-col items-center justify-center px-4 sm:px-10 lg:px-16 py-20 z-10 bg-transparent">
       <div className="max-w-5xl mx-auto flex flex-col items-center text-center">
         <FadeIn delay={0} y={20}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/40 bg-purple-500/10 text-xs font-mono text-purple-300 uppercase tracking-widest mb-4">
@@ -794,7 +800,7 @@ const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick
               const Icon = cat.icon;
               return (
                 <FadeIn key={cat.category} delay={idx * 0.05} y={15}>
-                  <div className="p-5 rounded-2xl bg-[#070B14]/90 border border-white/10 hover:border-cyan-400/60 transition-all duration-300 shadow-xl h-full flex flex-col justify-between">
+                  <div className="p-5 rounded-2xl bg-[#070B14]/85 border border-white/10 hover:border-cyan-400/60 transition-all duration-300 backdrop-blur-xl shadow-xl h-full flex flex-col justify-between">
                     <div>
                       <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-xl bg-cyan-500/10 text-[#00F5D4]">
@@ -870,7 +876,7 @@ const SERVICES_DATA = [
 ];
 
 const ServicesSection: React.FC = () => (
-  <section id="services" className="px-4 sm:px-10 lg:px-16 py-24 relative z-10 bg-transparent">
+  <section id="services" className="px-4 sm:px-10 lg:px-16 py-20 relative z-10 bg-transparent">
     <div className="max-w-6xl mx-auto">
       <FadeIn delay={0} y={20}>
         <div className="text-center mb-12">
@@ -889,7 +895,7 @@ const ServicesSection: React.FC = () => (
           return (
             <FadeIn key={srv.num} delay={i * 0.06} y={15} className="h-full">
               <TiltCard3D intensity={8} className="h-full">
-                <div className="h-full p-6 sm:p-7 rounded-2xl bg-[#0A0F1D]/85 border border-white/15 hover:border-[#00F5D4]/70 transition-all duration-300 flex flex-col justify-between group shadow-xl">
+                <div className="h-full p-6 sm:p-7 rounded-2xl bg-[#0A0F1D]/80 border border-white/15 hover:border-[#00F5D4]/70 transition-all duration-300 flex flex-col justify-between group shadow-xl backdrop-blur-xl">
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <span className="font-mono text-3xl font-black text-white/30 group-hover:text-[#00F5D4] transition-colors">
@@ -925,7 +931,7 @@ const ServicesSection: React.FC = () => (
 );
 
 // =========================================================================
-// 11. PROJECTS SECTION
+// 11. PROJECTS SECTION (STACKING PROJECT CARDS ANIMATION RESTORED)
 // =========================================================================
 const PROJECTS_DATA = [
   {
@@ -989,9 +995,9 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
   return (
     <div
       ref={containerRef}
-      className="sticky top-20 sm:top-24 flex items-center justify-center mb-12"
+      className="sticky flex items-center justify-center mb-12"
       style={{
-        top: `calc(4.5rem + ${index * 24}px)`,
+        top: `calc(5rem + ${index * 28}px)`,
         zIndex: index + 10,
       }}
     >
@@ -1000,25 +1006,25 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
           scale,
           transformOrigin: "top center",
         }}
-        className="w-full max-w-5xl lg:max-w-6xl bg-[#090E1A]/95 border-2 border-cyan-500/40 rounded-3xl sm:rounded-[36px] p-5 sm:p-8 md:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.85)] hover:border-cyan-400 transition-colors"
+        className="w-full max-w-5xl lg:max-w-6xl bg-[#090E1A]/95 backdrop-blur-2xl border-2 border-cyan-500/40 rounded-3xl sm:rounded-[36px] p-6 sm:p-8 md:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.85)] hover:border-cyan-400 transition-colors"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="font-mono font-black text-2xl sm:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#7B2CBF]">
+                <span className="font-mono font-black text-3xl sm:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#7B2CBF]">
                   {project.num}
                 </span>
-                <span className="text-[11px] sm:text-xs uppercase tracking-widest text-[#00F5D4] font-mono px-3.5 py-1 rounded-full bg-[#00F5D4]/10 border border-[#00F5D4]/30">
+                <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono px-3.5 py-1 rounded-full bg-[#00F5D4]/10 border border-[#00F5D4]/30">
                   {project.category}
                 </span>
               </div>
 
-              <h3 className="font-bold text-xl sm:text-3xl md:text-4xl uppercase tracking-tight text-white mb-3">
+              <h3 className="font-bold text-2xl sm:text-3xl md:text-4xl uppercase tracking-tight text-white mb-3">
                 {project.name}
               </h3>
 
-              <p className="text-xs sm:text-base text-[#D7E2EA]/85 font-light leading-relaxed mb-5">
+              <p className="text-sm sm:text-base text-[#D7E2EA]/85 font-light leading-relaxed mb-5">
                 {project.description}
               </p>
 
@@ -1026,7 +1032,7 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
                 {project.tech.map((t) => (
                   <span
                     key={t}
-                    className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] sm:text-xs font-mono text-[#00F5D4]"
+                    className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-[#00F5D4]"
                   >
                     {t}
                   </span>
@@ -1039,7 +1045,7 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
                 href={project.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-cyan-400/50 bg-cyan-400/15 text-[#00F5D4] font-medium uppercase tracking-widest px-5 sm:px-6 py-2.5 text-xs sm:text-sm hover:bg-[#00F5D4] hover:text-black transition-all shadow-[0_0_15px_rgba(0,245,212,0.25)]"
+                className="inline-flex items-center gap-2 rounded-full border border-cyan-400/50 bg-cyan-400/15 text-[#00F5D4] font-medium uppercase tracking-widest px-6 py-2.5 text-xs sm:text-sm hover:bg-[#00F5D4] hover:text-black transition-all shadow-[0_0_15px_rgba(0,245,212,0.25)]"
               >
                 <span>Live Deployment</span>
                 <ExternalLink className="w-4 h-4" />
@@ -1056,7 +1062,7 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
             </div>
           </div>
 
-          <div className="lg:col-span-5 h-[200px] sm:h-[280px] md:h-[320px] w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[#151A27] border border-white/10 relative group">
+          <div className="lg:col-span-5 h-[230px] sm:h-[280px] md:h-[320px] w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[#151A27] border border-white/10 relative group">
             <img
               src={project.image}
               alt={project.name}
@@ -1088,26 +1094,26 @@ const ProjectsSection: React.FC = () => {
     <section
       id="projects"
       ref={containerRef}
-      className="py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent min-h-[140vh]"
+      className="py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent min-h-[190vh]"
     >
       <div className="max-w-6xl mx-auto">
-        <FadeIn delay={0} y={20}>
+        <FadeIn delay={0} y={25}>
           <div className="text-center mb-8">
             <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono block mb-2">
               [ Featured Case Studies ]
             </span>
-            <h2 className="font-black uppercase tracking-tight text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#7B2CBF]/40">
+            <h2 className="font-black uppercase tracking-tight text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#7B2CBF]/40">
               Projects
             </h2>
           </div>
         </FadeIn>
 
-        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-12">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-14">
           {FILTER_TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 sm:px-5 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+              className={`px-5 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 cursor-pointer ${
                 activeTab === tab
                   ? "bg-[#00F5D4] text-black font-semibold shadow-[0_0_20px_rgba(0,245,212,0.4)]"
                   : "bg-[#0A0E17]/80 text-[#D7E2EA]/70 border border-white/10 hover:border-cyan-400/50"
@@ -1118,9 +1124,9 @@ const ProjectsSection: React.FC = () => {
           ))}
         </div>
 
-        <div className="relative">
+        <div className="relative pb-24">
           {filteredProjects.map((proj, idx) => {
-            const targetScale = 1 - (filteredProjects.length - idx) * 0.035;
+            const targetScale = 1 - (filteredProjects.length - idx) * 0.045;
             const startRange = idx * 0.25;
             return (
               <StackingProjectCard
@@ -1145,12 +1151,12 @@ const ProjectsSection: React.FC = () => {
 const ExperienceSection: React.FC = () => (
   <section id="experience" className="py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10">
     <div className="max-w-6xl mx-auto">
-      <FadeIn delay={0} y={20}>
+      <FadeIn delay={0} y={25}>
         <div className="text-center mb-12">
           <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono block mb-2">
             [ Comprehensive Record ]
           </span>
-          <h2 className="font-black uppercase tracking-tight text-3xl sm:text-5xl text-white">
+          <h2 className="font-black uppercase tracking-tight text-4xl sm:text-5xl text-white">
             Experience & Education
           </h2>
         </div>
@@ -1158,8 +1164,8 @@ const ExperienceSection: React.FC = () => (
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="flex flex-col gap-6">
-          <FadeIn delay={0.1} y={15}>
-            <div className="p-6 sm:p-8 rounded-2xl bg-[#0A0E17]/90 border border-white/15 shadow-2xl">
+          <FadeIn delay={0.1} y={20}>
+            <div className="p-7 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl">
               <div className="flex items-center gap-2 text-[#00F5D4] font-mono text-xs uppercase mb-2">
                 <Briefcase className="w-4 h-4" />
                 <span>Internship Experience</span>
@@ -1192,8 +1198,8 @@ const ExperienceSection: React.FC = () => (
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.15} y={15}>
-            <div className="p-6 sm:p-8 rounded-2xl bg-[#0A0E17]/90 border border-white/15 shadow-2xl">
+          <FadeIn delay={0.15} y={20}>
+            <div className="p-7 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl">
               <div className="flex items-center gap-2 text-yellow-400 font-mono text-xs uppercase mb-2">
                 <Award className="w-4 h-4" />
                 <span>Government Certified Training</span>
@@ -1212,15 +1218,15 @@ const ExperienceSection: React.FC = () => (
         </div>
 
         <div className="flex flex-col gap-6">
-          <FadeIn delay={0.2} y={15}>
-            <div className="p-6 sm:p-8 rounded-2xl bg-[#0A0E17]/90 border border-white/15 shadow-2xl h-full flex flex-col justify-between">
+          <FadeIn delay={0.2} y={20}>
+            <div className="p-7 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl h-full flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-purple-400 font-mono text-xs uppercase mb-3">
                   <GraduationCap className="w-4 h-4" />
                   <span>Academic Qualifications</span>
                 </div>
 
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                     <div className="flex items-center justify-between">
                       <h4 className="text-white font-bold text-sm sm:text-base">B.Tech, Computer Science & Engineering</h4>
@@ -1269,7 +1275,7 @@ const ExperienceSection: React.FC = () => (
 );
 
 // =========================================================================
-// 13. CONTACT MODAL
+// 13. CONTACT MODAL (WITH 1-CLICK CLIPBOARD COPY)
 // =========================================================================
 const ContactModal: React.FC<{
   isOpen: boolean;
@@ -1291,17 +1297,17 @@ const ContactModal: React.FC<{
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            initial={{ opacity: 0, scale: 0.9, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            exit={{ opacity: 0, scale: 0.9, y: 15 }}
             className="relative w-full max-w-xl bg-[#0D121D] border-2 border-[#00F5D4]/50 rounded-3xl p-6 sm:p-8 text-[#D7E2EA] shadow-[0_0_80px_rgba(0,245,212,0.3)] max-h-[90vh] overflow-y-auto"
           >
             <button
               onClick={onClose}
               className="absolute top-5 right-5 p-2 rounded-full bg-white/10 hover:bg-[#00F5D4]/20 text-white transition-colors cursor-pointer"
-              aria-label="Close Contact"
+              aria-label="Close modal"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1427,7 +1433,7 @@ const Footer: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) =>
 );
 
 // =========================================================================
-// 15. MAIN ENTRY POINT
+// 15. MAIN APPLICATION ENTRY
 // =========================================================================
 export default function App() {
   const [isContactOpen, setIsContactOpen] = useState(false);

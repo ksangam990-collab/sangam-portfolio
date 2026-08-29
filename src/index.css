@@ -12,21 +12,17 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
-  overflow-y: auto;
   width: 100%;
 }
 
 body {
-  background-color: #05070d;
-  color: #d7e2ea;
+  background-color: #05070D;
+  color: #D7E2EA;
   font-family:
     "Kanit",
     system-ui,
     -apple-system,
     sans-serif;
-  overflow-x: hidden;
-  overflow-y: visible;
   width: 100%;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -39,32 +35,33 @@ body {
   position: relative;
 }
 
-/* Ensure background canvases pass all touch/mouse wheel events to the page */
+/* Background canvas pass-through so touch/wheel gestures scroll the page directly */
 canvas {
-  pointer-events: none !important;
+  pointer-events: none;
 }
 
 .hero-heading {
-  background: linear-gradient(180deg, #ffffff 0%, #d7e2ea 60%, #00f5d4 100%);
+  background: linear-gradient(180deg, #FFFFFF 0%, #D7E2EA 60%, #00F5D4 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
+/* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #05070d;
+  background: #05070D;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #151a27;
+  background: #151A27;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #00f5d4;
+  background: #00F5D4;
 }
