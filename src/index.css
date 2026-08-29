@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -11,55 +13,50 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    -webkit-text-size-adjust: 100%;
     touch-action: pan-y;
   }
 
-  body, #root {
-    background-color: #05070D;
-    color: #D7E2EA;
-    font-family: 'Kanit', system-ui, -apple-system, sans-serif;
+  body,
+  #root {
+    background-color: #05070d;
+    color: #d7e2ea;
+    font-family:
+      "Kanit",
+      system-ui,
+      -apple-system,
+      sans-serif;
     overflow-x: hidden;
     overscroll-behavior-y: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Prevent background 3D canvas from hijacking vertical touch scrolling on mobile */
   canvas {
     touch-action: pan-y !important;
   }
 }
 
-/* Hero Gradient Heading */
 .hero-heading {
-  background: linear-gradient(180deg, #FFFFFF 0%, #D7E2EA 60%, #00F5D4 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #d7e2ea 60%, #00f5d4 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Custom Sleek Cyber Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #05070D;
+  background: #05070d;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #151A27;
+  background: #151a27;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #00F5D4;
-}
-
-/* GPU Hardware-Acceleration Layer */
-.gpu-layer {
-  transform: translateZ(0);
-  will-change: transform;
-  backface-visibility: hidden;
+  background: #00f5d4;
 }
