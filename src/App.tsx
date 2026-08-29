@@ -108,7 +108,7 @@ const CustomCyberCursor: React.FC = () => {
 };
 
 // =========================================================================
-// 2. 3D MATRIX TERRAIN CANVAS (PASS-THROUGH NO-BLOCK CANVAS)
+// 2. 3D MATRIX TERRAIN CANVAS
 // =========================================================================
 const Interactive3DMatrixTerrain: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -184,7 +184,6 @@ const Interactive3DMatrixTerrain: React.FC = () => {
       ctx.clearRect(0, 0, renderW, renderH);
       time += 0.015;
 
-      // 1. Background Stars
       stars.forEach((star) => {
         star.z -= 1.2;
         if (star.z <= 10) star.z = 1000;
@@ -204,7 +203,6 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       });
 
-      // 2. Click Shockwaves
       if (!isMobile) {
         for (let i = ripples.length - 1; i >= 0; i--) {
           const rip = ripples[i];
@@ -223,7 +221,6 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       }
 
-      // 3. 3D Terrain Perspective Grid
       const fov = 380;
       const cameraY = -150 - mouseY;
       const cameraZ = 450;
@@ -936,7 +933,7 @@ const ServicesSection: React.FC = () => (
 );
 
 // =========================================================================
-// 11. PROJECTS SECTION
+// 11. PROJECTS SECTION (RESPONSIVE FULL-CARD STACKING)
 // =========================================================================
 const PROJECTS_DATA = [
   {
@@ -996,13 +993,23 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scale = useTransform(progress, range, [1, targetScale]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const updateSize = () => setIsMobile(window.innerWidth < 640);
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   return (
     <div
       ref={containerRef}
-      className="sticky flex items-center justify-center mb-12"
+      className="sticky flex items-center justify-center mb-8 sm:mb-12"
       style={{
-        top: `calc(5rem + ${index * 28}px)`,
+        top: isMobile
+          ? `calc(0.5rem + ${index * 12}px)`
+          : `calc(4.5rem + ${index * 26}px)`,
         zIndex: index + 10,
       }}
     >
@@ -1011,33 +1018,33 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
           scale,
           transformOrigin: "top center",
         }}
-        className="w-full max-w-5xl lg:max-w-6xl bg-[#090E1A]/95 backdrop-blur-2xl border-2 border-cyan-500/40 rounded-3xl sm:rounded-[36px] p-6 sm:p-8 md:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.85)] hover:border-cyan-400 transition-colors"
+        className="w-full max-w-5xl lg:max-w-6xl bg-[#090E1A]/95 backdrop-blur-2xl border-2 border-cyan-500/40 rounded-2xl sm:rounded-[36px] p-4 sm:p-7 md:p-9 shadow-[0_20px_50px_rgba(0,0,0,0.85)] hover:border-cyan-400 transition-colors"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-6 md:gap-8 items-center">
           <div className="lg:col-span-7 flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="font-mono font-black text-3xl sm:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#7B2CBF]">
+              <div className="flex items-center justify-between mb-2 sm:mb-4">
+                <span className="font-mono font-black text-xl sm:text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#7B2CBF]">
                   {project.num}
                 </span>
-                <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono px-3.5 py-1 rounded-full bg-[#00F5D4]/10 border border-[#00F5D4]/30">
+                <span className="text-[10px] sm:text-xs uppercase tracking-widest text-[#00F5D4] font-mono px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full bg-[#00F5D4]/10 border border-[#00F5D4]/30">
                   {project.category}
                 </span>
               </div>
 
-              <h3 className="font-bold text-2xl sm:text-3xl md:text-4xl uppercase tracking-tight text-white mb-3">
+              <h3 className="font-bold text-base sm:text-2xl md:text-3xl uppercase tracking-tight text-white mb-2 sm:mb-3">
                 {project.name}
               </h3>
 
-              <p className="text-sm sm:text-base text-[#D7E2EA]/85 font-light leading-relaxed mb-5">
+              <p className="text-[11px] sm:text-sm md:text-base text-[#D7E2EA]/85 font-light leading-relaxed mb-3 sm:mb-4 line-clamp-3 sm:line-clamp-none">
                 {project.description}
               </p>
 
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-6">
                 {project.tech.map((t) => (
                   <span
                     key={t}
-                    className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-[#00F5D4]"
+                    className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-white/5 border border-white/10 text-[10px] sm:text-xs font-mono text-[#00F5D4]"
                   >
                     {t}
                   </span>
@@ -1045,29 +1052,29 @@ const StackingProjectCard: React.FC<StackingCardProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-3.5 pt-2">
+            <div className="flex items-center gap-3 pt-1 sm:pt-2">
               <a
                 href={project.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-cyan-400/50 bg-cyan-400/15 text-[#00F5D4] font-medium uppercase tracking-widest px-6 py-2.5 text-xs sm:text-sm hover:bg-[#00F5D4] hover:text-black transition-all shadow-[0_0_15px_rgba(0,245,212,0.25)]"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-cyan-400/50 bg-cyan-400/15 text-[#00F5D4] font-medium uppercase tracking-widest px-4 py-1.5 sm:px-6 sm:py-2.5 text-[11px] sm:text-sm hover:bg-[#00F5D4] hover:text-black transition-all shadow-[0_0_15px_rgba(0,245,212,0.25)]"
               >
                 <span>Live Deployment</span>
-                <ExternalLink className="w-4 h-4" />
+                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
               </a>
               <a
                 href={project.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 rounded-full border border-white/20 text-white hover:bg-white/10 transition-colors"
+                className="p-1.5 sm:p-2.5 rounded-full border border-white/20 text-white hover:bg-white/10 transition-colors"
                 aria-label="GitHub Repository"
               >
-                <Github className="w-5 h-5" />
+                <Github className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
             </div>
           </div>
 
-          <div className="lg:col-span-5 h-[230px] sm:h-[280px] md:h-[320px] w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[#151A27] border border-white/10 relative group">
+          <div className="lg:col-span-5 h-[110px] sm:h-[220px] md:h-[280px] w-full rounded-xl sm:rounded-3xl overflow-hidden bg-[#151A27] border border-white/10 relative group">
             <img
               src={project.image}
               alt={project.name}
@@ -1099,7 +1106,7 @@ const ProjectsSection: React.FC = () => {
     <section
       id="projects"
       ref={containerRef}
-      className="py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent min-h-[190vh]"
+      className="py-16 sm:py-24 px-3 sm:px-10 lg:px-16 relative z-10 bg-transparent min-h-[170vh]"
     >
       <div className="max-w-6xl mx-auto">
         <FadeIn delay={0} y={25}>
@@ -1107,18 +1114,18 @@ const ProjectsSection: React.FC = () => {
             <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono block mb-2">
               [ Featured Case Studies ]
             </span>
-            <h2 className="font-black uppercase tracking-tight text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#7B2CBF]/40">
+            <h2 className="font-black uppercase tracking-tight text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#7B2CBF]/40">
               Projects
             </h2>
           </div>
         </FadeIn>
 
-        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-14">
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-10 sm:mb-14">
           {FILTER_TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+              className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-mono uppercase tracking-wider transition-all duration-300 cursor-pointer ${
                 activeTab === tab
                   ? "bg-[#00F5D4] text-black font-semibold shadow-[0_0_20px_rgba(0,245,212,0.4)]"
                   : "bg-[#0A0E17]/80 text-[#D7E2EA]/70 border border-white/10 hover:border-cyan-400/50"
@@ -1129,9 +1136,9 @@ const ProjectsSection: React.FC = () => {
           ))}
         </div>
 
-        <div className="relative pb-24">
+        <div className="relative pb-16 sm:pb-24">
           {filteredProjects.map((proj, idx) => {
-            const targetScale = 1 - (filteredProjects.length - idx) * 0.045;
+            const targetScale = 1 - (filteredProjects.length - idx) * 0.04;
             const startRange = idx * 0.25;
             return (
               <StackingProjectCard
@@ -1280,7 +1287,7 @@ const ExperienceSection: React.FC = () => (
 );
 
 // =========================================================================
-// 13. CONTACT MODAL (FIXED RESPONSIVE FOOTER & DIRECT RESUME LINK)
+// 13. CONTACT MODAL
 // =========================================================================
 const ContactModal: React.FC<{
   isOpen: boolean;
@@ -1396,7 +1403,6 @@ const ContactModal: React.FC<{
               </a>
             </div>
 
-            {/* Responsive Clean Footer Row (No overlap on mobile) */}
             <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
               <a
                 href="/resume.pdf"
