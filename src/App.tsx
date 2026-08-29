@@ -553,7 +553,7 @@ const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; inte
 };
 
 // =========================================================================
-// 7. MOTION HELPERS & ULTRA-SMOOTH BIO ANIMATION
+// 7. MOTION HELPERS & ANIMATED BIO
 // =========================================================================
 const FadeIn: React.FC<{
   children: React.ReactNode;
@@ -640,8 +640,7 @@ const AnimatedWord: React.FC<{
 // =========================================================================
 const HeroSection: React.FC<{
   onContactClick: () => void;
-  onDownloadResume: () => void;
-}> = ({ onContactClick, onDownloadResume }) => (
+}> = ({ onContactClick }) => (
   <section
     id="hero"
     className="relative min-h-[95vh] w-full flex flex-col justify-between bg-transparent select-none z-10 px-4 sm:px-10 lg:px-16 pt-5 pb-8"
@@ -661,13 +660,16 @@ const HeroSection: React.FC<{
         </nav>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={onDownloadResume}
+          <a
+            href="/resume.pdf"
+            download="Sangam_Kumar_Resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hidden sm:inline-flex items-center gap-1.5 text-xs uppercase tracking-wider font-medium px-4 py-2 rounded-full border border-white/20 text-[#D7E2EA] hover:bg-white/10 transition-colors cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-[#00F5D4]" />
             <span>Resume</span>
-          </button>
+          </a>
           <button
             onClick={onContactClick}
             className="text-xs sm:text-sm uppercase tracking-wider font-semibold px-4 sm:px-5 py-2 rounded-full border border-[#00F5D4]/50 bg-[#00F5D4]/15 text-[#00F5D4] hover:bg-[#00F5D4] hover:text-black transition-all cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.25)]"
@@ -705,13 +707,16 @@ const HeroSection: React.FC<{
             document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
           }}
         />
-        <button
-          onClick={onDownloadResume}
+        <a
+          href="/resume.pdf"
+          download="Sangam_Kumar_Resume.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
           className="px-6 py-3 rounded-full border border-cyan-400/40 bg-cyan-400/10 text-[#00F5D4] uppercase tracking-widest text-xs sm:text-sm font-medium hover:bg-cyan-400 hover:text-black transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.2)]"
         >
           <Download className="w-4 h-4" />
           <span>Download Resume</span>
-        </button>
+        </a>
       </FadeIn>
     </div>
 
@@ -739,7 +744,7 @@ const HeroSection: React.FC<{
 );
 
 // =========================================================================
-// 9. ABOUT SECTION (COMPLETE SKILLS MATRIX)
+// 9. ABOUT SECTION
 // =========================================================================
 const SKILL_CATEGORIES = [
   {
@@ -931,7 +936,7 @@ const ServicesSection: React.FC = () => (
 );
 
 // =========================================================================
-// 11. PROJECTS SECTION (STACKING PROJECT CARDS ANIMATION RESTORED)
+// 11. PROJECTS SECTION
 // =========================================================================
 const PROJECTS_DATA = [
   {
@@ -1275,14 +1280,13 @@ const ExperienceSection: React.FC = () => (
 );
 
 // =========================================================================
-// 13. CONTACT MODAL (WITH 1-CLICK CLIPBOARD COPY)
+// 13. CONTACT MODAL (FIXED RESPONSIVE FOOTER & DIRECT RESUME LINK)
 // =========================================================================
 const ContactModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   onCopy: (text: string, label: string) => void;
-  onDownloadResume: () => void;
-}> = ({ isOpen, onClose, onCopy, onDownloadResume }) => {
+}> = ({ isOpen, onClose, onCopy }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -1392,15 +1396,21 @@ const ContactModal: React.FC<{
               </a>
             </div>
 
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-              <button
-                onClick={onDownloadResume}
-                className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#00F5D4] to-[#4361EE] text-black font-semibold text-xs uppercase tracking-wider flex items-center gap-2 hover:opacity-90 cursor-pointer"
+            {/* Responsive Clean Footer Row (No overlap on mobile) */}
+            <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <a
+                href="/resume.pdf"
+                download="Sangam_Kumar_Resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-6 py-3 rounded-full bg-gradient-to-r from-[#00F5D4] to-[#4361EE] text-black font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.25)]"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download Resume</span>
-              </button>
-              <span className="text-[11px] text-[#D7E2EA]/50 font-mono">portfolio.ksangam.dpdns.org</span>
+              </a>
+              <span className="text-[11px] text-[#D7E2EA]/50 font-mono text-center sm:text-right">
+                portfolio.ksangam.dpdns.org
+              </span>
             </div>
           </motion.div>
         </div>
@@ -1477,15 +1487,6 @@ export default function App() {
     setToastMessage(label);
   };
 
-  const handleDownloadResume = () => {
-    const link = document.createElement("a");
-    link.href = "https://slotly.ksangam.dpdns.org";
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.click();
-    setToastMessage("Opening verified portfolio & resume details");
-  };
-
   return (
     <div className="w-full bg-[#05070D] text-[#D7E2EA] selection:bg-[#00F5D4] selection:text-black font-sans relative">
       <CustomCyberCursor />
@@ -1493,10 +1494,7 @@ export default function App() {
       <ScrollHUD activeSection={activeSection} />
 
       <div className="relative z-10 flex flex-col gap-6 w-full">
-        <HeroSection
-          onContactClick={() => setIsContactOpen(true)}
-          onDownloadResume={handleDownloadResume}
-        />
+        <HeroSection onContactClick={() => setIsContactOpen(true)} />
         <AboutSection onContactClick={() => setIsContactOpen(true)} />
         <ServicesSection />
         <ProjectsSection />
@@ -1508,7 +1506,6 @@ export default function App() {
         isOpen={isContactOpen}
         onClose={() => setIsContactOpen(false)}
         onCopy={handleCopy}
-        onDownloadResume={handleDownloadResume}
       />
 
       <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
