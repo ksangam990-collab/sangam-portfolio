@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Cyber Neon Gradient -->
+    <linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5D4" />
+      <stop offset="50%" stop-color="#4361EE" />
+      <stop offset="100%" stop-color="#7B2CBF" />
+    </linearGradient>
+
+    <!-- Border Accent Gradient -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5D4" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#7B2CBF" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Outer Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="14" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Dark Base Tile -->
+  <rect width="512" height="512" rx="120" fill="#05070D" />
+  <rect width="492" height="492" x="10" y="10" rx="110" fill="none" stroke="url(#borderGrad)" stroke-width="14" />
+
+  <!-- Glowing Geometric Core (Code Brackets + Cyber "S" Monogram) -->
+  <g filter="url(#glow)">
+    <!-- Left Angle Bracket -->
+    <path d="M 140 180 L 80 256 L 140 332" fill="none" stroke="#00F5D4" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Right Angle Bracket -->
+    <path d="M 372 180 L 432 256 L 372 332" fill="none" stroke="#7B2CBF" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Stylized Monogram Glyph -->
+    <path d="M 310 185 C 310 185 285 155 235 155 C 185 155 175 195 175 215 C 175 260 330 250 330 305 C 330 355 275 355 235 355 C 190 355 170 325 170 325" fill="none" stroke="url(#cyberGrad)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
