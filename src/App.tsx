@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 
 // =========================================================================
-// 0. REAL-TIME 3D CANVAS ROTATING FAVICON ENGINE (DESKTOP ONLY)
+// 0. REAL-TIME 3D CANVAS ROTATING FAVICON ENGINE
 // =========================================================================
 const use3DCanvasFavicon = () => {
   useEffect(() => {
@@ -214,26 +214,20 @@ const CustomCyberCursor: React.FC = () => {
 };
 
 // =========================================================================
-// 2. 3D MATRIX TERRAIN (HIGH-PERFORMANCE ZERO-JANK DESKTOP ENGINE)
+// 2. 3D MATRIX TERRAIN CANVAS
 // =========================================================================
 const Interactive3DMatrixTerrain: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
-    // Completely disable on mobile to give 120Hz native scrolling
-    if (window.innerWidth < 768 || "ontouchstart" in window) {
-      return;
-    }
-    setIsDesktop(true);
-
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     let animId: number;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const isMobile = window.innerWidth < 768;
+    const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
 
     let width = (canvas.width = window.innerWidth * dpr);
     let height = (canvas.height = window.innerHeight * dpr);
@@ -241,7 +235,10 @@ const Interactive3DMatrixTerrain: React.FC = () => {
 
     const handleResize = () => {
       if (!canvas) return;
-      const curDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const curIsMobile = window.innerWidth < 768;
+      const curDpr = curIsMobile
+        ? 1
+        : Math.min(window.devicePixelRatio || 1, 1.5);
       width = canvas.width = window.innerWidth * curDpr;
       height = canvas.height = window.innerHeight * curDpr;
       ctx.scale(curDpr, curDpr);
@@ -256,6 +253,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
       alpha: number;
     }[] = [];
     const onClick = (e: MouseEvent) => {
+      if (isMobile) return;
       ripples.push({
         x: e.clientX,
         y: e.clientY,
@@ -264,9 +262,13 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         alpha: 0.9,
       });
     };
-    window.addEventListener("click", onClick, { passive: true });
 
-    const stars = Array.from({ length: 65 }, () => ({
+    if (!isMobile) {
+      window.addEventListener("click", onClick, { passive: true });
+    }
+
+    const starCount = isMobile ? 30 : 65;
+    const stars = Array.from({ length: starCount }, () => ({
       x: (Math.random() - 0.5) * window.innerWidth * 1.5,
       y: (Math.random() - 0.5) * window.innerHeight * 1.5,
       z: Math.random() * 1000 + 100,
@@ -280,11 +282,14 @@ const Interactive3DMatrixTerrain: React.FC = () => {
       mouseX = (e.clientX - window.innerWidth / 2) * 0.04;
       mouseY = (e.clientY - window.innerHeight / 2) * 0.04;
     };
-    window.addEventListener("mousemove", onMouseMove, { passive: true });
 
-    const cols = 24;
-    const rows = 18;
-    const spacing = 62;
+    if (!isMobile) {
+      window.addEventListener("mousemove", onMouseMove, { passive: true });
+    }
+
+    const cols = isMobile ? 16 : 24;
+    const rows = isMobile ? 14 : 18;
+    const spacing = isMobile ? 70 : 62;
     let time = 0;
 
     const render = () => {
@@ -312,19 +317,21 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       });
 
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        const rip = ripples[i];
-        rip.r += 3.6;
-        rip.alpha -= 0.018;
+      if (!isMobile) {
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const rip = ripples[i];
+          rip.r += 3.6;
+          rip.alpha -= 0.018;
 
-        ctx.beginPath();
-        ctx.arc(rip.x, rip.y, rip.r, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(0, 245, 212, ${Math.max(0, rip.alpha)})`;
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(rip.x, rip.y, rip.r, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0, 245, 212, ${Math.max(0, rip.alpha)})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
 
-        if (rip.alpha <= 0 || rip.r >= rip.maxR) {
-          ripples.splice(i, 1);
+          if (rip.alpha <= 0 || rip.r >= rip.maxR) {
+            ripples.splice(i, 1);
+          }
         }
       }
 
@@ -405,13 +412,13 @@ const Interactive3DMatrixTerrain: React.FC = () => {
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("click", onClick);
+      if (!isMobile) {
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("click", onClick);
+      }
       cancelAnimationFrame(animId);
     };
   }, []);
-
-  if (!isDesktop) return null;
 
   return (
     <canvas
@@ -436,7 +443,7 @@ const InteractivePolyhedron3D: React.FC = () => {
     let animId: number;
     const isMobile = window.innerWidth < 768;
     const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
-    const size = isMobile ? 120 : 160;
+    const size = isMobile ? 130 : 160;
 
     canvas.width = size * dpr;
     canvas.height = size * dpr;
@@ -502,7 +509,7 @@ const InteractivePolyhedron3D: React.FC = () => {
       rotX += 0.01;
       rotY += 0.015;
 
-      const scale = isMobile ? 28 : 38;
+      const scale = isMobile ? 32 : 38;
       const center = size / 2;
 
       const projected = vertices.map(([x, y, z]) => {
@@ -559,7 +566,7 @@ const InteractivePolyhedron3D: React.FC = () => {
       <div className="absolute -inset-2 bg-cyan-500/15 rounded-full blur-xl opacity-40 pointer-events-none" />
       <canvas
         ref={canvasRef}
-        className="relative w-24 h-24 sm:w-36 sm:h-36 pointer-events-none"
+        className="relative w-28 h-28 sm:w-36 sm:h-36 pointer-events-none"
       />
     </div>
   );
@@ -798,7 +805,7 @@ const AnimatedWord: React.FC<{
 };
 
 // =========================================================================
-// 8. HERO SECTION
+// 8. HERO SECTION (PHONE ALIGNMENT OPTIMIZED)
 // =========================================================================
 const HeroSection: React.FC<{
   onContactClick: () => void;
@@ -1423,7 +1430,7 @@ const ProjectsSection: React.FC = () => {
 };
 
 // =========================================================================
-// 12. EXPERIENCE & EDUCATION
+// 12. EXPERIENCE & EDUCATION (FIXED MOBILE WRAPPING & ALIGNMENT)
 // =========================================================================
 const ExperienceSection: React.FC = () => (
   <section
@@ -1524,6 +1531,7 @@ const ExperienceSection: React.FC = () => (
                 </div>
 
                 <div className="space-y-4 sm:space-y-5">
+                  {/* B.Tech */}
                   <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 border border-white/5">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                       <h4 className="text-white font-bold text-sm sm:text-base leading-snug">
@@ -1542,6 +1550,7 @@ const ExperienceSection: React.FC = () => (
                     </span>
                   </div>
 
+                  {/* Diploma */}
                   <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 border border-white/5">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                       <h4 className="text-white font-bold text-sm sm:text-base leading-snug">
@@ -1556,6 +1565,7 @@ const ExperienceSection: React.FC = () => (
                     </p>
                   </div>
 
+                  {/* Class XII */}
                   <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 border border-white/5">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                       <h4 className="text-white font-bold text-sm sm:text-base leading-snug">
@@ -1748,7 +1758,7 @@ const ContactModal: React.FC<{
 };
 
 // =========================================================================
-// 14. FOOTER
+// 14. FOOTER (MOBILE ALIGNED)
 // =========================================================================
 const Footer: React.FC<{ onContactClick: () => void }> = ({
   onContactClick,
