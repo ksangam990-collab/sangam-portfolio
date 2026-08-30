@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 
 // =========================================================================
-// 0. REAL-TIME 3D CANVAS ROTATING FAVICON ENGINE
+// 0. REAL-TIME 3D CANVAS ROTATING FAVICON ENGINE (DESKTOP ONLY)
 // =========================================================================
 const use3DCanvasFavicon = () => {
   useEffect(() => {
@@ -201,7 +201,7 @@ const CustomCyberCursor: React.FC = () => {
 };
 
 // =========================================================================
-// 2. 3D MATRIX TERRAIN CANVAS
+// 2. 3D MATRIX TERRAIN CANVAS (ULTRA-OPTIMIZED FOR BOTH MOBILE & DESKTOP)
 // =========================================================================
 const Interactive3DMatrixTerrain: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -246,12 +246,12 @@ const Interactive3DMatrixTerrain: React.FC = () => {
       window.addEventListener("click", onClick, { passive: true });
     }
 
-    const starCount = isMobile ? 30 : 65;
+    const starCount = isMobile ? 22 : 60;
     const stars = Array.from({ length: starCount }, () => ({
       x: (Math.random() - 0.5) * window.innerWidth * 1.5,
       y: (Math.random() - 0.5) * window.innerHeight * 1.5,
       z: Math.random() * 1000 + 100,
-      size: Math.random() * 1.5 + 0.8,
+      size: Math.random() * 1.4 + 0.8,
       color: Math.random() > 0.4 ? "#00F5D4" : "#7B2CBF",
     }));
 
@@ -266,19 +266,20 @@ const Interactive3DMatrixTerrain: React.FC = () => {
       window.addEventListener("mousemove", onMouseMove, { passive: true });
     }
 
-    const cols = isMobile ? 16 : 24;
-    const rows = isMobile ? 14 : 18;
-    const spacing = isMobile ? 70 : 62;
+    const cols = isMobile ? 12 : 24;
+    const rows = isMobile ? 10 : 18;
+    const spacing = isMobile ? 85 : 62;
     let time = 0;
 
     const render = () => {
       const renderW = window.innerWidth;
       const renderH = window.innerHeight;
       ctx.clearRect(0, 0, renderW, renderH);
-      time += 0.015;
+      time += 0.014;
 
+      // 1. Background Stars
       stars.forEach((star) => {
-        star.z -= 1.2;
+        star.z -= 1.0;
         if (star.z <= 10) star.z = 1000;
 
         const k = 380 / star.z;
@@ -296,6 +297,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       });
 
+      // 2. Desktop Click Waves
       if (!isMobile) {
         for (let i = ripples.length - 1; i >= 0; i--) {
           const rip = ripples[i];
@@ -314,9 +316,10 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       }
 
+      // 3. 3D Perspective Grid
       const fov = 380;
-      const cameraY = -150 - mouseY;
-      const cameraZ = 450;
+      const cameraY = -140 - mouseY;
+      const cameraZ = 440;
       const rotY = (mouseX / renderW) * 0.4;
 
       const grid: { sx: number; sy: number; z: number }[][] = [];
@@ -328,7 +331,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
           const wz = (r - rows / 2) * spacing;
 
           const dist = Math.sqrt(wx * wx + wz * wz);
-          const wy = Math.sin(dist * 0.025 - time) * 28 + Math.cos(wx * 0.04 + time) * 14;
+          const wy = Math.sin(dist * 0.025 - time) * 26 + Math.cos(wx * 0.04 + time) * 12;
 
           const cosY = Math.cos(rotY);
           const sinY = Math.sin(rotY);
@@ -354,7 +357,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
           const p1 = grid[r][c];
           if (p1.sx === -9999) continue;
 
-          const alpha = Math.max(0.06, Math.min(0.5, (850 - p1.z) / 750));
+          const alpha = Math.max(0.06, Math.min(0.45, (850 - p1.z) / 750));
 
           if (c < cols - 1) {
             const p2 = grid[r][c + 1];
@@ -362,8 +365,8 @@ const Interactive3DMatrixTerrain: React.FC = () => {
               ctx.beginPath();
               ctx.moveTo(p1.sx, p1.sy);
               ctx.lineTo(p2.sx, p2.sy);
-              ctx.strokeStyle = `rgba(0, 245, 212, ${alpha * 0.7})`;
-              ctx.lineWidth = 0.9;
+              ctx.strokeStyle = `rgba(0, 245, 212, ${alpha * 0.65})`;
+              ctx.lineWidth = 0.8;
               ctx.stroke();
             }
           }
@@ -374,8 +377,8 @@ const Interactive3DMatrixTerrain: React.FC = () => {
               ctx.beginPath();
               ctx.moveTo(p1.sx, p1.sy);
               ctx.lineTo(p3.sx, p3.sy);
-              ctx.strokeStyle = `rgba(123, 44, 191, ${alpha * 0.75})`;
-              ctx.lineWidth = 0.9;
+              ctx.strokeStyle = `rgba(123, 44, 191, ${alpha * 0.7})`;
+              ctx.lineWidth = 0.8;
               ctx.stroke();
             }
           }
@@ -400,7 +403,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0 opacity-70 w-full h-full"
+      className="fixed inset-0 pointer-events-none z-0 opacity-60 w-full h-full"
     />
   );
 };
@@ -420,7 +423,7 @@ const InteractivePolyhedron3D: React.FC = () => {
     let animId: number;
     const isMobile = window.innerWidth < 768;
     const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
-    const size = isMobile ? 130 : 160;
+    const size = isMobile ? 120 : 160;
 
     canvas.width = size * dpr;
     canvas.height = size * dpr;
@@ -457,7 +460,7 @@ const InteractivePolyhedron3D: React.FC = () => {
       rotX += 0.01;
       rotY += 0.015;
 
-      const scale = isMobile ? 32 : 38;
+      const scale = isMobile ? 28 : 38;
       const center = size / 2;
 
       const projected = vertices.map(([x, y, z]) => {
@@ -514,7 +517,7 @@ const InteractivePolyhedron3D: React.FC = () => {
       <div className="absolute -inset-2 bg-cyan-500/15 rounded-full blur-xl opacity-40 pointer-events-none" />
       <canvas
         ref={canvasRef}
-        className="relative w-28 h-28 sm:w-36 sm:h-36 pointer-events-none"
+        className="relative w-24 h-24 sm:w-36 sm:h-36 pointer-events-none"
       />
     </div>
   );
@@ -726,7 +729,7 @@ const AnimatedWord: React.FC<{
 };
 
 // =========================================================================
-// 8. HERO SECTION (PHONE ALIGNMENT OPTIMIZED)
+// 8. HERO SECTION
 // =========================================================================
 const HeroSection: React.FC<{
   onContactClick: () => void;
@@ -1252,7 +1255,7 @@ const ProjectsSection: React.FC = () => {
 };
 
 // =========================================================================
-// 12. EXPERIENCE & EDUCATION (FIXED MOBILE WRAPPING & ALIGNMENT)
+// 12. EXPERIENCE & EDUCATION
 // =========================================================================
 const ExperienceSection: React.FC = () => (
   <section id="experience" className="py-16 sm:py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10">
@@ -1333,7 +1336,6 @@ const ExperienceSection: React.FC = () => (
                 </div>
 
                 <div className="space-y-4 sm:space-y-5">
-                  {/* B.Tech */}
                   <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 border border-white/5">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                       <h4 className="text-white font-bold text-sm sm:text-base leading-snug">
@@ -1351,7 +1353,6 @@ const ExperienceSection: React.FC = () => (
                     </span>
                   </div>
 
-                  {/* Diploma */}
                   <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 border border-white/5">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                       <h4 className="text-white font-bold text-sm sm:text-base leading-snug">
@@ -1366,7 +1367,6 @@ const ExperienceSection: React.FC = () => (
                     </p>
                   </div>
 
-                  {/* Class XII */}
                   <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 border border-white/5">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                       <h4 className="text-white font-bold text-sm sm:text-base leading-snug">
@@ -1535,7 +1535,7 @@ const ContactModal: React.FC<{
 };
 
 // =========================================================================
-// 14. FOOTER (MOBILE ALIGNED)
+// 14. FOOTER
 // =========================================================================
 const Footer: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) => (
   <footer className="border-t border-white/10 py-8 sm:py-10 px-4 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-5 text-[#D7E2EA]/70 text-xs sm:text-sm relative z-10 bg-transparent text-center md:text-left">
