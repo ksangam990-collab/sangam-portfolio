@@ -201,7 +201,7 @@ const CustomCyberCursor: React.FC = () => {
 };
 
 // =========================================================================
-// 2. 3D MATRIX TERRAIN CANVAS (ULTRA-OPTIMIZED FOR BOTH MOBILE & DESKTOP)
+// 2. 3D MATRIX TERRAIN CANVAS (HARDWARE OPTIMIZED)
 // =========================================================================
 const Interactive3DMatrixTerrain: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -277,7 +277,6 @@ const Interactive3DMatrixTerrain: React.FC = () => {
       ctx.clearRect(0, 0, renderW, renderH);
       time += 0.014;
 
-      // 1. Background Stars
       stars.forEach((star) => {
         star.z -= 1.0;
         if (star.z <= 10) star.z = 1000;
@@ -297,7 +296,6 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       });
 
-      // 2. Desktop Click Waves
       if (!isMobile) {
         for (let i = ripples.length - 1; i >= 0; i--) {
           const rip = ripples[i];
@@ -316,7 +314,6 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       }
 
-      // 3. 3D Perspective Grid
       const fov = 380;
       const cameraY = -140 - mouseY;
       const cameraZ = 440;
