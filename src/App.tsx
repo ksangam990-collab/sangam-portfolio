@@ -30,6 +30,9 @@ import {
   Check,
   Server,
   Cloud,
+  Search,
+  Terminal,
+  CornerDownLeft,
 } from "lucide-react";
 
 // =========================================================================
@@ -201,7 +204,7 @@ const CustomCyberCursor: React.FC = () => {
 };
 
 // =========================================================================
-// 2. 3D MATRIX TERRAIN CANVAS (ULTRA-OPTIMIZED FOR BOTH MOBILE & DESKTOP)
+// 2. 3D MATRIX TERRAIN CANVAS
 // =========================================================================
 const Interactive3DMatrixTerrain: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -277,7 +280,6 @@ const Interactive3DMatrixTerrain: React.FC = () => {
       ctx.clearRect(0, 0, renderW, renderH);
       time += 0.014;
 
-      // 1. Background Stars
       stars.forEach((star) => {
         star.z -= 1.0;
         if (star.z <= 10) star.z = 1000;
@@ -297,7 +299,6 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       });
 
-      // 2. Desktop Click Waves
       if (!isMobile) {
         for (let i = ripples.length - 1; i >= 0; i--) {
           const rip = ripples[i];
@@ -316,7 +317,6 @@ const Interactive3DMatrixTerrain: React.FC = () => {
         }
       }
 
-      // 3. 3D Perspective Grid
       const fov = 380;
       const cameraY = -140 - mouseY;
       const cameraZ = 440;
@@ -646,7 +646,294 @@ const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; inte
 };
 
 // =========================================================================
-// 7. MOTION HELPERS & ANIMATED BIO
+// 7. DEVELOPER COMMAND PALETTE (CTRL+K / CMD+K)
+// =========================================================================
+interface CommandItem {
+  id: string;
+  category: "Navigation" | "Quick Action" | "API Tester" | "External";
+  label: string;
+  sublabel?: string;
+  icon: React.ReactNode;
+  action: () => void;
+}
+
+const CommandPaletteModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onOpenContact: () => void;
+  onToast: (msg: string) => void;
+}> = ({ isOpen, onClose, onOpenContact, onToast }) => {
+  const [query, setQuery] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [apiResult, setApiResult] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const simulateSlotlyApi = () => {
+    setApiResult("Pinging Render backend: GET /api/v1/queue/status ... 200 OK (38ms)\nPayload: { status: 'operational', activeTokens: 24, avgWaitTime: '12m', aiRebalanced: true }");
+    onToast("Live API test executed");
+  };
+
+  const commands: CommandItem[] = [
+    {
+      id: "proj",
+      category: "Navigation",
+      label: "Jump to Projects & Case Studies",
+      sublabel: "Slotly MERN System & 3D Web",
+      icon: <Layers className="w-4 h-4 text-[#00F5D4]" />,
+      action: () => {
+        document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+        onClose();
+      },
+    },
+    {
+      id: "about",
+      category: "Navigation",
+      label: "Jump to Core Stack & Bio",
+      sublabel: "Languages, Frontend & Backend Frameworks",
+      icon: <Code2 className="w-4 h-4 text-[#00F5D4]" />,
+      action: () => {
+        document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+        onClose();
+      },
+    },
+    {
+      id: "exp",
+      category: "Navigation",
+      label: "Jump to Experience & Qualifications",
+      sublabel: "TechnoExponent Intern & IIT-K Certification",
+      icon: <Briefcase className="w-4 h-4 text-purple-400" />,
+      action: () => {
+        document.getElementById("experience")?.scrollIntoView({ behavior: "smooth" });
+        onClose();
+      },
+    },
+    {
+      id: "api-test",
+      category: "API Tester",
+      label: "Run Slotly REST API Benchmark",
+      sublabel: "Simulate live GET /api/v1/queue payload",
+      icon: <Terminal className="w-4 h-4 text-[#00F5D4]" />,
+      action: () => simulateSlotlyApi(),
+    },
+    {
+      id: "contact",
+      category: "Quick Action",
+      label: "Open Direct Line Modal",
+      sublabel: "Email, Phone, LinkedIn channels",
+      icon: <Mail className="w-4 h-4 text-cyan-300" />,
+      action: () => {
+        onClose();
+        onOpenContact();
+      },
+    },
+    {
+      id: "resume",
+      category: "Quick Action",
+      label: "Download Official Resume (PDF)",
+      sublabel: "Sangam_Kumar_Resume.pdf",
+      icon: <Download className="w-4 h-4 text-yellow-400" />,
+      action: () => {
+        window.open("/resume.pdf", "_blank");
+        onToast("Resume download initiated");
+        onClose();
+      },
+    },
+    {
+      id: "copy-mail",
+      category: "Quick Action",
+      label: "Copy Developer Email",
+      sublabel: "ksangam990@gmail.com",
+      icon: <Copy className="w-4 h-4 text-[#00F5D4]" />,
+      action: () => {
+        navigator.clipboard.writeText("ksangam990@gmail.com");
+        onToast("Email copied to clipboard");
+        onClose();
+      },
+    },
+    {
+      id: "slotly-live",
+      category: "External",
+      label: "Visit Slotly Live Deployment",
+      sublabel: "slotly.ksangam.dpdns.org",
+      icon: <ExternalLink className="w-4 h-4 text-purple-400" />,
+      action: () => {
+        window.open("https://slotly.ksangam.dpdns.org", "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "github-link",
+      category: "External",
+      label: "View GitHub Repositories",
+      sublabel: "github.com/ksangam990-collab",
+      icon: <Github className="w-4 h-4 text-white" />,
+      action: () => {
+        window.open("https://github.com/ksangam990-collab", "_blank");
+        onClose();
+      },
+    },
+  ];
+
+  const filtered = commands.filter(
+    (c) =>
+      c.label.toLowerCase().includes(query.toLowerCase()) ||
+      c.category.toLowerCase().includes(query.toLowerCase()) ||
+      c.sublabel?.toLowerCase().includes(query.toLowerCase())
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      setQuery("");
+      setSelectedIndex(0);
+      setApiResult(null);
+      setTimeout(() => inputRef.current?.focus(), 80);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev + 1) % (filtered.length || 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev - 1 + (filtered.length || 1)) % (filtered.length || 1));
+      } else if (e.key === "Enter" && filtered[selectedIndex]) {
+        e.preventDefault();
+        filtered[selectedIndex].action();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, filtered, selectedIndex, onClose]);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 pt-[12vh] bg-black/80 backdrop-blur-xl">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            className="relative w-full max-w-2xl bg-[#090E1A]/95 border-2 border-cyan-500/50 rounded-2xl sm:rounded-3xl shadow-[0_0_80px_rgba(0,245,212,0.3)] overflow-hidden flex flex-col"
+          >
+            {/* Command Search Header */}
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/10 bg-white/5">
+              <Search className="w-5 h-5 text-[#00F5D4] shrink-0" />
+              <input
+                ref={inputRef}
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setSelectedIndex(0);
+                }}
+                placeholder="Type a command or jump to section (e.g. 'projects', 'resume', 'api')..."
+                className="w-full bg-transparent text-white placeholder:text-[#D7E2EA]/40 text-xs sm:text-sm font-mono outline-none"
+              />
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors cursor-pointer shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Simulated Terminal Output Box */}
+            {apiResult && (
+              <div className="mx-4 mt-3 p-3 rounded-xl bg-black/80 border border-[#00F5D4]/40 font-mono text-[11px] text-[#00F5D4] whitespace-pre-wrap flex items-start justify-between">
+                <div>
+                  <span className="text-purple-400 block mb-1">$ curl -X GET /api/v1/queue/status</span>
+                  {apiResult}
+                </div>
+                <button
+                  onClick={() => setApiResult(null)}
+                  className="text-gray-400 hover:text-white text-xs ml-2 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Results List */}
+            <div className="max-h-[50vh] overflow-y-auto p-2 space-y-1">
+              {filtered.length === 0 ? (
+                <div className="py-10 text-center font-mono text-xs text-[#D7E2EA]/50">
+                  No matching commands found.
+                </div>
+              ) : (
+                filtered.map((item, idx) => {
+                  const isSelected = idx === selectedIndex;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={item.action}
+                      onMouseEnter={() => setSelectedIndex(idx)}
+                      className={`w-full flex items-center justify-between p-3 rounded-xl transition-all text-left cursor-pointer ${
+                        isSelected
+                          ? "bg-[#00F5D4]/15 border border-[#00F5D4]/40 text-white shadow-[0_0_15px_rgba(0,245,212,0.15)]"
+                          : "bg-transparent border border-transparent text-[#D7E2EA]/80 hover:bg-white/5"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`p-2 rounded-lg ${
+                            isSelected ? "bg-[#00F5D4]/20 text-[#00F5D4]" : "bg-white/5 text-gray-400"
+                          }`}
+                        >
+                          {item.icon}
+                        </div>
+                        <div>
+                          <div className="text-xs sm:text-sm font-medium text-white flex items-center gap-2">
+                            <span>{item.label}</span>
+                            <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-white/10 text-cyan-300">
+                              {item.category}
+                            </span>
+                          </div>
+                          {item.sublabel && (
+                            <span className="text-[11px] font-mono text-[#D7E2EA]/50 block">
+                              {item.sublabel}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="hidden sm:flex items-center gap-1 font-mono text-[10px] text-[#00F5D4]/80">
+                        <span>Select</span>
+                        <CornerDownLeft className="w-3 h-3" />
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Footer Legend */}
+            <div className="px-4 py-2.5 bg-black/40 border-t border-white/10 flex items-center justify-between font-mono text-[10px] text-[#D7E2EA]/50">
+              <span className="hidden sm:inline">Use ↑ ↓ arrows to navigate • ↵ Enter to execute</span>
+              <span className="sm:hidden">Tap any action to execute</span>
+              <span>Sangam.dev Command Matrix</span>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// =========================================================================
+// 8. MOTION HELPERS & ANIMATED BIO
 // =========================================================================
 const FadeIn: React.FC<{
   children: React.ReactNode;
@@ -729,11 +1016,12 @@ const AnimatedWord: React.FC<{
 };
 
 // =========================================================================
-// 8. HERO SECTION
+// 9. HERO SECTION (WITH COMMAND PALETTE TRIGGER)
 // =========================================================================
 const HeroSection: React.FC<{
   onContactClick: () => void;
-}> = ({ onContactClick }) => (
+  onOpenCommand: () => void;
+}> = ({ onContactClick, onOpenCommand }) => (
   <section
     id="hero"
     className="relative min-h-[95vh] w-full flex flex-col justify-between bg-transparent select-none z-10 px-4 sm:px-10 lg:px-16 pt-3 sm:pt-5 pb-8"
@@ -753,6 +1041,15 @@ const HeroSection: React.FC<{
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            onClick={onOpenCommand}
+            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full border border-white/15 bg-white/5 text-gray-300 hover:text-white hover:border-[#00F5D4]/60 transition-all font-mono text-xs cursor-pointer"
+            title="Open Command Palette (Ctrl+K)"
+          >
+            <Terminal className="w-3.5 h-3.5 text-[#00F5D4]" />
+            <span className="hidden sm:inline text-[11px] text-[#D7E2EA]/60 font-medium">Ctrl K</span>
+          </button>
+
           <a
             href="/resume.pdf"
             download="Sangam_Kumar_Resume.pdf"
@@ -838,7 +1135,7 @@ const HeroSection: React.FC<{
 );
 
 // =========================================================================
-// 9. ABOUT SECTION
+// 10. ABOUT SECTION
 // =========================================================================
 const SKILL_CATEGORIES = [
   {
@@ -934,7 +1231,7 @@ const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick
 };
 
 // =========================================================================
-// 10. SERVICES SECTION
+// 11. SERVICES SECTION
 // =========================================================================
 const SERVICES_DATA = [
   {
@@ -1030,7 +1327,7 @@ const ServicesSection: React.FC = () => (
 );
 
 // =========================================================================
-// 11. PROJECTS SECTION
+// 12. PROJECTS SECTION
 // =========================================================================
 const PROJECTS_DATA = [
   {
@@ -1255,7 +1552,7 @@ const ProjectsSection: React.FC = () => {
 };
 
 // =========================================================================
-// 12. EXPERIENCE & EDUCATION
+// 13. EXPERIENCE & EDUCATION
 // =========================================================================
 const ExperienceSection: React.FC = () => (
   <section id="experience" className="py-16 sm:py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10">
@@ -1396,7 +1693,7 @@ const ExperienceSection: React.FC = () => (
 );
 
 // =========================================================================
-// 13. CONTACT MODAL
+// 14. CONTACT MODAL
 // =========================================================================
 const ContactModal: React.FC<{
   isOpen: boolean;
@@ -1535,9 +1832,12 @@ const ContactModal: React.FC<{
 };
 
 // =========================================================================
-// 14. FOOTER
+// 15. FOOTER
 // =========================================================================
-const Footer: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) => (
+const Footer: React.FC<{
+  onContactClick: () => void;
+  onOpenCommand: () => void;
+}> = ({ onContactClick, onOpenCommand }) => (
   <footer className="border-t border-white/10 py-8 sm:py-10 px-4 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-5 text-[#D7E2EA]/70 text-xs sm:text-sm relative z-10 bg-transparent text-center md:text-left">
     <div>
       <p className="uppercase tracking-wider font-semibold text-white">
@@ -1549,6 +1849,13 @@ const Footer: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) =>
     </div>
 
     <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 font-mono text-xs uppercase">
+      <button
+        onClick={onOpenCommand}
+        className="text-[#00F5D4] hover:underline cursor-pointer flex items-center gap-1"
+      >
+        <Terminal className="w-3.5 h-3.5" />
+        <span>Command Matrix</span>
+      </button>
       <a href="https://github.com/ksangam990-collab" target="_blank" rel="noopener noreferrer" className="hover:text-[#00F5D4] transition-colors">GitHub</a>
       <a href="https://linkedin.com/in/sangam-kumar07" target="_blank" rel="noopener noreferrer" className="hover:text-[#00F5D4] transition-colors">LinkedIn</a>
       <a href="https://slotly.ksangam.dpdns.org" target="_blank" rel="noopener noreferrer" className="hover:text-[#00F5D4] transition-colors">Slotly Live</a>
@@ -1558,14 +1865,28 @@ const Footer: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) =>
 );
 
 // =========================================================================
-// 15. MAIN APPLICATION ENTRY
+// 16. MAIN APPLICATION ENTRY
 // =========================================================================
 export default function App() {
   use3DCanvasFavicon();
 
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState("hero");
+
+  // Global Keyboard Listener for Ctrl+K / Cmd+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsCommandOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     document.title = "Sangam Kumar — Full Stack MERN Developer";
@@ -1611,18 +1932,31 @@ export default function App() {
       <ScrollHUD activeSection={activeSection} />
 
       <div className="relative z-10 flex flex-col gap-6 w-full">
-        <HeroSection onContactClick={() => setIsContactOpen(true)} />
+        <HeroSection
+          onContactClick={() => setIsContactOpen(true)}
+          onOpenCommand={() => setIsCommandOpen(true)}
+        />
         <AboutSection onContactClick={() => setIsContactOpen(true)} />
         <ServicesSection />
         <ProjectsSection />
         <ExperienceSection />
-        <Footer onContactClick={() => setIsContactOpen(true)} />
+        <Footer
+          onContactClick={() => setIsContactOpen(true)}
+          onOpenCommand={() => setIsCommandOpen(true)}
+        />
       </div>
 
       <ContactModal
         isOpen={isContactOpen}
         onClose={() => setIsContactOpen(false)}
         onCopy={handleCopy}
+      />
+
+      <CommandPaletteModal
+        isOpen={isCommandOpen}
+        onClose={() => setIsCommandOpen(false)}
+        onOpenContact={() => setIsContactOpen(true)}
+        onToast={(msg) => setToastMessage(msg)}
       />
 
       <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
