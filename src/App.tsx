@@ -37,7 +37,6 @@ import {
 // =========================================================================
 const use3DCanvasFavicon = () => {
   useEffect(() => {
-    // Only run on desktop/capable browsers to preserve mobile battery
     if (window.innerWidth < 768) return;
 
     const canvas = document.createElement("canvas");
@@ -46,22 +45,29 @@ const use3DCanvasFavicon = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let faviconLink = document.querySelector<HTMLLinkElement>("link[rel*='icon']");
+    let faviconLink =
+      document.querySelector<HTMLLinkElement>("link[rel*='icon']");
     if (!faviconLink) {
       faviconLink = document.createElement("link");
       faviconLink.rel = "icon";
       document.head.appendChild(faviconLink);
     }
 
-    // 3D Matrix Coordinates for "S" Monogram Vertices
     const nodes: [number, number, number][] = [
-      [-0.7, 0.8, -0.3], [0.7, 0.8, 0.3],
-      [-0.7, 0.1, 0.3],  [0.7, 0.1, -0.3],
-      [-0.7, -0.8, -0.3], [0.7, -0.8, 0.3],
+      [-0.7, 0.8, -0.3],
+      [0.7, 0.8, 0.3],
+      [-0.7, 0.1, 0.3],
+      [0.7, 0.1, -0.3],
+      [-0.7, -0.8, -0.3],
+      [0.7, -0.8, 0.3],
     ];
 
     const edges = [
-      [0, 1], [0, 2], [2, 3], [3, 5], [4, 5]
+      [0, 1],
+      [0, 2],
+      [2, 3],
+      [3, 5],
+      [4, 5],
     ];
 
     let angle = 0;
@@ -70,13 +76,11 @@ const use3DCanvasFavicon = () => {
     const render3DFavicon = () => {
       ctx.clearRect(0, 0, 32, 32);
 
-      // Dark background badge
       ctx.fillStyle = "#05070D";
       ctx.beginPath();
       ctx.roundRect(0, 0, 32, 32, 8);
       ctx.fill();
 
-      // Border gradient outline
       ctx.strokeStyle = "#00F5D4";
       ctx.lineWidth = 1.2;
       ctx.stroke();
@@ -85,7 +89,6 @@ const use3DCanvasFavicon = () => {
       const cosA = Math.cos(angle);
       const sinA = Math.sin(angle);
 
-      // Project 3D points
       const projected = nodes.map(([x, y, z]) => {
         const x1 = x * cosA - z * sinA;
         const z1 = x * sinA + z * cosA;
@@ -97,7 +100,6 @@ const use3DCanvasFavicon = () => {
         };
       });
 
-      // Draw 3D wireframe connecting edges
       edges.forEach(([start, end]) => {
         const p1 = projected[start];
         const p2 = projected[end];
@@ -113,7 +115,6 @@ const use3DCanvasFavicon = () => {
         ctx.stroke();
       });
 
-      // Draw illuminated 3D node vertices
       projected.forEach((p) => {
         ctx.beginPath();
         ctx.arc(p.px, p.py, 1.8, 0, Math.PI * 2);
@@ -143,7 +144,10 @@ const CustomCyberCursor: React.FC = () => {
   const [isTouchDevice, setIsTouchDevice] = useState(true);
 
   useEffect(() => {
-    if (window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window) {
+    if (
+      window.matchMedia("(pointer: coarse)").matches ||
+      "ontouchstart" in window
+    ) {
       return;
     }
     setIsTouchDevice(false);
@@ -154,7 +158,7 @@ const CustomCyberCursor: React.FC = () => {
 
       const target = e.target as HTMLElement | null;
       const isInteractive = !!target?.closest(
-        "button, a, input, [role='button'], .hover-interactive"
+        "button, a, input, [role='button'], .hover-interactive",
       );
       setIsHovered(isInteractive);
     };
@@ -197,7 +201,9 @@ const CustomCyberCursor: React.FC = () => {
           width: isHovered ? 48 : 32,
           height: isHovered ? 48 : 32,
           borderColor: isHovered ? "#00F5D4" : "rgba(123, 44, 191, 0.65)",
-          backgroundColor: isHovered ? "rgba(0, 245, 212, 0.08)" : "transparent",
+          backgroundColor: isHovered
+            ? "rgba(0, 245, 212, 0.08)"
+            : "transparent",
           scale: isClicked ? 0.8 : 1,
         }}
         transition={{ type: "spring", stiffness: 380, damping: 26 }}
@@ -230,14 +236,22 @@ const Interactive3DMatrixTerrain: React.FC = () => {
     const handleResize = () => {
       if (!canvas) return;
       const curIsMobile = window.innerWidth < 768;
-      const curDpr = curIsMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+      const curDpr = curIsMobile
+        ? 1
+        : Math.min(window.devicePixelRatio || 1, 1.5);
       width = canvas.width = window.innerWidth * curDpr;
       height = canvas.height = window.innerHeight * curDpr;
       ctx.scale(curDpr, curDpr);
     };
     window.addEventListener("resize", handleResize, { passive: true });
 
-    const ripples: { x: number; y: number; r: number; maxR: number; alpha: number }[] = [];
+    const ripples: {
+      x: number;
+      y: number;
+      r: number;
+      maxR: number;
+      alpha: number;
+    }[] = [];
     const onClick = (e: MouseEvent) => {
       if (isMobile) return;
       ripples.push({
@@ -335,7 +349,9 @@ const Interactive3DMatrixTerrain: React.FC = () => {
           const wz = (r - rows / 2) * spacing;
 
           const dist = Math.sqrt(wx * wx + wz * wz);
-          const wy = Math.sin(dist * 0.025 - time) * 28 + Math.cos(wx * 0.04 + time) * 14;
+          const wy =
+            Math.sin(dist * 0.025 - time) * 28 +
+            Math.cos(wx * 0.04 + time) * 14;
 
           const cosY = Math.cos(rotY);
           const sinY = Math.sin(rotY);
@@ -438,20 +454,49 @@ const InteractivePolyhedron3D: React.FC = () => {
     const b = 1 / phi;
 
     const vertices = [
-      [-b, a, 0], [b, a, 0], [-b, -a, 0], [b, -a, 0],
-      [0, -b, a], [0, b, a], [0, -b, -a], [0, b, -a],
-      [a, 0, -b], [a, 0, b], [-a, 0, -b], [-a, 0, b],
+      [-b, a, 0],
+      [b, a, 0],
+      [-b, -a, 0],
+      [b, -a, 0],
+      [0, -b, a],
+      [0, b, a],
+      [0, -b, -a],
+      [0, b, -a],
+      [a, 0, -b],
+      [a, 0, b],
+      [-a, 0, -b],
+      [-a, 0, b],
     ];
 
     const edges = [
-      [0, 1], [0, 5], [0, 7], [0, 10], [0, 11],
-      [1, 5], [1, 7], [1, 8], [1, 9],
-      [2, 3], [2, 4], [2, 6], [2, 10], [2, 11],
-      [3, 4], [3, 6], [3, 8], [3, 9],
-      [4, 5], [4, 9], [4, 11],
-      [5, 9], [5, 11],
-      [6, 7], [6, 8], [6, 10],
-      [7, 8], [7, 10],
+      [0, 1],
+      [0, 5],
+      [0, 7],
+      [0, 10],
+      [0, 11],
+      [1, 5],
+      [1, 7],
+      [1, 8],
+      [1, 9],
+      [2, 3],
+      [2, 4],
+      [2, 6],
+      [2, 10],
+      [2, 11],
+      [3, 4],
+      [3, 6],
+      [3, 8],
+      [3, 9],
+      [4, 5],
+      [4, 9],
+      [4, 11],
+      [5, 9],
+      [5, 11],
+      [6, 7],
+      [6, 8],
+      [6, 10],
+      [7, 8],
+      [7, 10],
       [8, 9],
       [10, 11],
     ];
@@ -558,7 +603,9 @@ const ScrollHUD: React.FC<{ activeSection: string }> = ({ activeSection }) => {
             <button
               key={sec.id}
               onClick={() => {
-                document.getElementById(sec.id)?.scrollIntoView({ behavior: "smooth" });
+                document
+                  .getElementById(sec.id)
+                  ?.scrollIntoView({ behavior: "smooth" });
               }}
               className="group relative flex items-center justify-end cursor-pointer"
             >
@@ -583,7 +630,10 @@ const ScrollHUD: React.FC<{ activeSection: string }> = ({ activeSection }) => {
 // =========================================================================
 // 5. TOAST NOTIFICATION
 // =========================================================================
-const Toast: React.FC<{ message: string | null; onClose: () => void }> = ({ message, onClose }) => {
+const Toast: React.FC<{ message: string | null; onClose: () => void }> = ({
+  message,
+  onClose,
+}) => {
   useEffect(() => {
     if (message) {
       const timer = setTimeout(onClose, 2400);
@@ -609,11 +659,11 @@ const Toast: React.FC<{ message: string | null; onClose: () => void }> = ({ mess
 // =========================================================================
 // 6. 3D GYRO PERSPECTIVE TILT (DESKTOP ONLY)
 // =========================================================================
-const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; intensity?: number }> = ({
-  children,
-  className = "",
-  intensity = 8,
-}) => {
+const TiltCard3D: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+  intensity?: number;
+}> = ({ children, className = "", intensity = 8 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -621,8 +671,16 @@ const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; inte
   const mouseXSpring = useSpring(x, { stiffness: 180, damping: 20 });
   const mouseYSpring = useSpring(y, { stiffness: 180, damping: 20 });
 
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [intensity, -intensity]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-intensity, intensity]);
+  const rotateX = useTransform(
+    mouseYSpring,
+    [-0.5, 0.5],
+    [intensity, -intensity],
+  );
+  const rotateY = useTransform(
+    mouseXSpring,
+    [-0.5, 0.5],
+    [-intensity, intensity],
+  );
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current || window.innerWidth < 768) return;
@@ -659,7 +717,14 @@ const FadeIn: React.FC<{
   x?: number;
   y?: number;
   className?: string;
-}> = ({ children, delay = 0, duration = 0.5, x = 0, y = 20, className = "" }) => (
+}> = ({
+  children,
+  delay = 0,
+  duration = 0.5,
+  x = 0,
+  y = 20,
+  className = "",
+}) => (
   <motion.div
     initial={{ opacity: 0, x, y }}
     whileInView={{ opacity: 1, x: 0, y: 0 }}
@@ -682,7 +747,7 @@ const GlowingPillButton: React.FC<{
     className={`relative group inline-flex items-center justify-center p-[2px] rounded-full overflow-hidden font-semibold uppercase tracking-widest text-xs sm:text-sm cursor-pointer shadow-[0_0_20px_rgba(0,245,212,0.3)] hover:shadow-[0_0_35px_rgba(123,44,191,0.55)] transition-all duration-300 hover:scale-105 active:scale-95 ${className}`}
   >
     <span className="absolute inset-0 bg-gradient-to-r from-[#00F5D4] via-[#4361EE] to-[#7B2CBF] animate-pulse" />
-    <span className="relative px-7 py-3.5 sm:px-9 sm:py-4 bg-[#05070D] rounded-full text-white flex items-center gap-2.5 group-hover:bg-[#05070D]/70 transition-colors">
+    <span className="relative w-full px-6 py-3.5 sm:px-9 sm:py-4 bg-[#05070D] rounded-full text-white flex items-center justify-center gap-2.5 group-hover:bg-[#05070D]/70 transition-colors">
       {icon || <Sparkles className="w-4 h-4 text-[#00F5D4]" />}
       <span>{label}</span>
     </span>
@@ -701,13 +766,20 @@ const AnimatedBioText: React.FC<{ text: string }> = ({ text }) => {
   return (
     <p
       ref={targetRef}
-      style={{ fontSize: "clamp(1.1rem, 2vw, 1.45rem)" }}
+      style={{ fontSize: "clamp(1.05rem, 2vw, 1.45rem)" }}
       className="text-[#D7E2EA] font-normal text-center leading-relaxed max-w-[780px] flex flex-wrap justify-center"
     >
       {words.map((word, i) => {
         const start = i / words.length;
         const end = (i + 1) / words.length;
-        return <AnimatedWord key={i} word={word} progress={scrollYProgress} range={[start, end]} />;
+        return (
+          <AnimatedWord
+            key={i}
+            word={word}
+            progress={scrollYProgress}
+            range={[start, end]}
+          />
+        );
       })}
     </p>
   );
@@ -733,30 +805,50 @@ const AnimatedWord: React.FC<{
 };
 
 // =========================================================================
-// 8. HERO SECTION
+// 8. HERO SECTION (PHONE ALIGNMENT OPTIMIZED)
 // =========================================================================
 const HeroSection: React.FC<{
   onContactClick: () => void;
 }> = ({ onContactClick }) => (
   <section
     id="hero"
-    className="relative min-h-[95vh] w-full flex flex-col justify-between bg-transparent select-none z-10 px-4 sm:px-10 lg:px-16 pt-5 pb-8"
+    className="relative min-h-[95vh] w-full flex flex-col justify-between bg-transparent select-none z-10 px-4 sm:px-10 lg:px-16 pt-3 sm:pt-5 pb-8"
   >
     <FadeIn delay={0} y={-10} className="w-full max-w-6xl mx-auto">
-      <header className="flex items-center justify-between w-full backdrop-blur-xl py-3 px-5 sm:px-6 rounded-full border border-white/15 bg-[#05070D]/80 shadow-2xl">
-        <a href="#" className="flex items-center gap-2 font-mono text-sm tracking-widest text-[#00F5D4] uppercase">
+      <header className="flex items-center justify-between w-full backdrop-blur-xl py-2.5 px-4 sm:py-3 sm:px-6 rounded-full border border-white/15 bg-[#05070D]/80 shadow-2xl">
+        <a
+          href="#"
+          className="flex items-center gap-2 font-mono text-xs sm:text-sm tracking-widest text-[#00F5D4] uppercase"
+        >
           <span className="w-2 h-2 rounded-full bg-[#00F5D4] animate-ping" />
           <span>SANGAM.DEV</span>
         </a>
 
         <nav className="hidden md:flex items-center gap-8 text-sm uppercase tracking-wider font-medium text-[#D7E2EA]/80">
-          <a href="#about" className="hover:text-[#00F5D4] transition-colors">About</a>
-          <a href="#services" className="hover:text-[#00F5D4] transition-colors">Services</a>
-          <a href="#projects" className="hover:text-[#00F5D4] transition-colors">Projects</a>
-          <a href="#experience" className="hover:text-[#00F5D4] transition-colors">Experience</a>
+          <a href="#about" className="hover:text-[#00F5D4] transition-colors">
+            About
+          </a>
+          <a
+            href="#services"
+            className="hover:text-[#00F5D4] transition-colors"
+          >
+            Services
+          </a>
+          <a
+            href="#projects"
+            className="hover:text-[#00F5D4] transition-colors"
+          >
+            Projects
+          </a>
+          <a
+            href="#experience"
+            className="hover:text-[#00F5D4] transition-colors"
+          >
+            Experience
+          </a>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <a
             href="/resume.pdf"
             download="Sangam_Kumar_Resume.pdf"
@@ -769,7 +861,7 @@ const HeroSection: React.FC<{
           </a>
           <button
             onClick={onContactClick}
-            className="text-xs sm:text-sm uppercase tracking-wider font-semibold px-4 sm:px-5 py-2 rounded-full border border-[#00F5D4]/50 bg-[#00F5D4]/15 text-[#00F5D4] hover:bg-[#00F5D4] hover:text-black transition-all cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.25)]"
+            className="text-[11px] sm:text-sm uppercase tracking-wider font-semibold px-4 sm:px-5 py-2 rounded-full border border-[#00F5D4]/50 bg-[#00F5D4]/15 text-[#00F5D4] hover:bg-[#00F5D4] hover:text-black transition-all cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.25)]"
           >
             Let&apos;s Talk
           </button>
@@ -777,31 +869,39 @@ const HeroSection: React.FC<{
       </header>
     </FadeIn>
 
-    <div className="flex flex-col items-center justify-center text-center my-auto py-4 z-10 w-full max-w-5xl mx-auto">
-      <FadeIn delay={0.1} y={15}>
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00F5D4]/40 bg-[#00F5D4]/10 mb-4 text-xs sm:text-sm font-mono text-[#00F5D4] shadow-[0_0_20px_rgba(0,245,212,0.2)]">
-          <Code2 className="w-4 h-4" />
+    <div className="flex flex-col items-center justify-center text-center my-auto py-6 sm:py-4 z-10 w-full max-w-5xl mx-auto">
+      <FadeIn delay={0.1} y={15} className="w-full flex justify-center">
+        <div className="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-full border border-[#00F5D4]/40 bg-[#00F5D4]/10 mb-4 text-[11px] sm:text-xs md:text-sm font-mono text-[#00F5D4] shadow-[0_0_20px_rgba(0,245,212,0.2)] max-w-[92vw] text-center leading-snug">
+          <Code2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
           <span>Full Stack MERN Developer • AI Integrator</span>
         </div>
       </FadeIn>
 
       <FadeIn delay={0.15} y={20} className="w-full">
-        <h1 className="font-black uppercase tracking-tight leading-none text-[12vw] sm:text-[11vw] md:text-[8.5rem] text-transparent bg-clip-text bg-gradient-to-b from-white via-[#E2E8F0] to-[#00F5D4]/40 drop-shadow-[0_15px_30px_rgba(0,245,212,0.25)] text-center">
+        <h1 className="font-black uppercase tracking-tight leading-none text-[12.5vw] sm:text-[11vw] md:text-[8.5rem] text-transparent bg-clip-text bg-gradient-to-b from-white via-[#E2E8F0] to-[#00F5D4]/40 drop-shadow-[0_15px_30px_rgba(0,245,212,0.25)] text-center">
           Hi, i&apos;m sangam
         </h1>
       </FadeIn>
 
       <FadeIn delay={0.2} y={15}>
-        <p className="max-w-2xl text-[#D7E2EA]/90 font-light text-sm sm:text-base md:text-lg mt-3 leading-relaxed mx-auto px-2">
-          Architecting scalable production web applications, high-throughput REST APIs, and dynamic 3D user experiences.
+        <p className="max-w-2xl text-[#D7E2EA]/90 font-light text-xs sm:text-base md:text-lg mt-3 leading-relaxed mx-auto px-3">
+          Architecting scalable production web applications, high-throughput
+          REST APIs, and dynamic 3D user experiences.
         </p>
       </FadeIn>
 
-      <FadeIn delay={0.25} y={15} className="mt-6 flex flex-wrap items-center justify-center gap-3.5">
+      <FadeIn
+        delay={0.25}
+        y={15}
+        className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xs sm:max-w-none mx-auto"
+      >
         <GlowingPillButton
           label="Explore Projects"
+          className="w-full sm:w-auto"
           onClick={() => {
-            document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+            document
+              .getElementById("projects")
+              ?.scrollIntoView({ behavior: "smooth" });
           }}
         />
         <a
@@ -809,7 +909,7 @@ const HeroSection: React.FC<{
           download="Sangam_Kumar_Resume.pdf"
           target="_blank"
           rel="noopener noreferrer"
-          className="px-6 py-3 rounded-full border border-cyan-400/40 bg-cyan-400/10 text-[#00F5D4] uppercase tracking-widest text-xs sm:text-sm font-medium hover:bg-cyan-400 hover:text-black transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.2)]"
+          className="w-full sm:w-auto px-6 py-3.5 sm:px-7 sm:py-4 rounded-full border border-cyan-400/40 bg-cyan-400/10 text-[#00F5D4] uppercase tracking-widest text-xs sm:text-sm font-semibold hover:bg-cyan-400 hover:text-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.2)]"
         >
           <Download className="w-4 h-4" />
           <span>Download Resume</span>
@@ -818,22 +918,38 @@ const HeroSection: React.FC<{
     </div>
 
     <FadeIn delay={0.3} y={15} className="w-full max-w-5xl mx-auto">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/15 backdrop-blur-sm text-center">
-        <div className="flex flex-col items-center">
-          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">15+</span>
-          <span className="text-[11px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium">RESTful APIs Built</span>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-white/15 backdrop-blur-sm text-center">
+        <div className="flex flex-col items-center p-2">
+          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">
+            15+
+          </span>
+          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">
+            RESTful APIs Built
+          </span>
         </div>
-        <div className="flex flex-col items-center">
-          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">~40%</span>
-          <span className="text-[11px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium">Efficiency Boost</span>
+        <div className="flex flex-col items-center p-2">
+          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">
+            ~40%
+          </span>
+          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">
+            Efficiency Boost
+          </span>
         </div>
-        <div className="flex flex-col items-center">
-          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">3 Roles</span>
-          <span className="text-[11px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium">RBAC Security</span>
+        <div className="flex flex-col items-center p-2">
+          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">
+            3 Roles
+          </span>
+          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">
+            RBAC Security
+          </span>
         </div>
-        <div className="flex flex-col items-center">
-          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">IIT-K</span>
-          <span className="text-[11px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium">MeitY Certified</span>
+        <div className="flex flex-col items-center p-2">
+          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">
+            IIT-K
+          </span>
+          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">
+            MeitY Certified
+          </span>
         </div>
       </div>
     </FadeIn>
@@ -852,12 +968,25 @@ const SKILL_CATEGORIES = [
   {
     category: "Frontend Stack",
     icon: Layers,
-    skills: ["React.js", "Redux (basics)", "HTML5", "CSS3", "Framer Motion", "Tailwind CSS"],
+    skills: [
+      "React.js",
+      "Redux (basics)",
+      "HTML5",
+      "CSS3",
+      "Framer Motion",
+      "Tailwind CSS",
+    ],
   },
   {
     category: "Backend & Systems",
     icon: Server,
-    skills: ["Node.js", "Express.js", "REST APIs", "JWT Authentication", "Role-Based Access Control (RBAC)"],
+    skills: [
+      "Node.js",
+      "Express.js",
+      "REST APIs",
+      "JWT Authentication",
+      "Role-Based Access Control (RBAC)",
+    ],
   },
   {
     category: "Database & Cloud DevOps",
@@ -872,49 +1001,62 @@ const SKILL_CATEGORIES = [
   {
     category: "Integrations & Workflows",
     icon: Sparkles,
-    skills: ["AI Integration", "QR Code Generation", "CSV Export", "Recharts Analytics", "Agile Workflow"],
+    skills: [
+      "AI Integration",
+      "QR Code Generation",
+      "CSV Export",
+      "Recharts Analytics",
+      "Agile Workflow",
+    ],
   },
 ];
 
-const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) => {
+const AboutSection: React.FC<{ onContactClick: () => void }> = ({
+  onContactClick,
+}) => {
   const bioSummary =
     "Full Stack MERN Developer with proven experience building and deploying production-grade web applications. Proficient in React.js, Node.js, Express.js, MongoDB, JWT authentication, and REST API design. Active on GitHub with personal and internship projects, holding IIT Kanpur (MeitY) and industrial certifications. Seeking a Full Stack / Frontend Developer role to deliver scalable, user-focused digital solutions.";
 
   return (
-    <section id="about" className="relative min-h-[90vh] w-full flex flex-col items-center justify-center px-4 sm:px-10 lg:px-16 py-20 z-10 bg-transparent">
+    <section
+      id="about"
+      className="relative min-h-[90vh] w-full flex flex-col items-center justify-center px-4 sm:px-10 lg:px-16 py-16 sm:py-20 z-10 bg-transparent"
+    >
       <div className="max-w-5xl mx-auto flex flex-col items-center text-center">
         <FadeIn delay={0} y={20}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/40 bg-purple-500/10 text-xs font-mono text-purple-300 uppercase tracking-widest mb-4">
             <span>[ Architecture & Mindset ]</span>
           </div>
-          <h2 className="font-black uppercase tracking-tight text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#00F5D4]/40 mb-8">
+          <h2 className="font-black uppercase tracking-tight text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-[#D7E2EA] to-[#00F5D4]/40 mb-6 sm:mb-8">
             About Me
           </h2>
         </FadeIn>
 
         <AnimatedBioText text={bioSummary} />
 
-        <div className="flex flex-col items-center w-full max-w-5xl mt-12 gap-8">
+        <div className="flex flex-col items-center w-full max-w-5xl mt-10 sm:mt-12 gap-6 sm:gap-8">
           <InteractivePolyhedron3D />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 w-full text-left">
             {SKILL_CATEGORIES.map((cat, idx) => {
               const Icon = cat.icon;
               return (
                 <FadeIn key={cat.category} delay={idx * 0.05} y={15}>
-                  <div className="p-5 rounded-2xl bg-[#070B14]/85 border border-white/10 hover:border-cyan-400/60 transition-all duration-300 backdrop-blur-xl shadow-xl h-full flex flex-col justify-between">
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#070B14]/85 border border-white/10 hover:border-cyan-400/60 transition-all duration-300 backdrop-blur-xl shadow-xl h-full flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-2.5 sm:gap-3 mb-2.5 sm:mb-3">
                         <div className="p-2 rounded-xl bg-cyan-500/10 text-[#00F5D4]">
                           <Icon className="w-4 h-4" />
                         </div>
-                        <h3 className="font-semibold text-white text-sm sm:text-base">{cat.category}</h3>
+                        <h3 className="font-semibold text-white text-sm sm:text-base">
+                          {cat.category}
+                        </h3>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {cat.skills.map((skill) => (
                           <span
                             key={skill}
-                            className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-xs text-[#D7E2EA]/85 font-mono"
+                            className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-[11px] sm:text-xs text-[#D7E2EA]/85 font-mono"
                           >
                             {skill}
                           </span>
@@ -928,7 +1070,7 @@ const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick
           </div>
         </div>
 
-        <FadeIn delay={0.2} y={15} className="mt-10">
+        <FadeIn delay={0.2} y={15} className="mt-8 sm:mt-10">
           <GlowingPillButton label="Get In Touch" onClick={onContactClick} />
         </FadeIn>
       </div>
@@ -978,10 +1120,13 @@ const SERVICES_DATA = [
 ];
 
 const ServicesSection: React.FC = () => (
-  <section id="services" className="px-4 sm:px-10 lg:px-16 py-20 relative z-10 bg-transparent">
+  <section
+    id="services"
+    className="px-4 sm:px-10 lg:px-16 py-16 sm:py-20 relative z-10 bg-transparent"
+  >
     <div className="max-w-6xl mx-auto">
       <FadeIn delay={0} y={20}>
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 sm:mb-12">
           <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono block mb-2">
             [ Engineered Solutions ]
           </span>
@@ -991,34 +1136,34 @@ const ServicesSection: React.FC = () => (
         </div>
       </FadeIn>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
         {SERVICES_DATA.map((srv, i) => {
           const Icon = srv.icon;
           return (
             <FadeIn key={srv.num} delay={i * 0.06} y={15} className="h-full">
               <TiltCard3D intensity={8} className="h-full">
-                <div className="h-full p-6 sm:p-7 rounded-2xl bg-[#0A0F1D]/80 border border-white/15 hover:border-[#00F5D4]/70 transition-all duration-300 flex flex-col justify-between group shadow-xl backdrop-blur-xl">
+                <div className="h-full p-5 sm:p-7 rounded-2xl bg-[#0A0F1D]/80 border border-white/15 hover:border-[#00F5D4]/70 transition-all duration-300 flex flex-col justify-between group shadow-xl backdrop-blur-xl">
                   <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-mono text-3xl font-black text-white/30 group-hover:text-[#00F5D4] transition-colors">
+                    <div className="flex items-center justify-between mb-3.5 sm:mb-4">
+                      <span className="font-mono text-2xl sm:text-3xl font-black text-white/30 group-hover:text-[#00F5D4] transition-colors">
                         {srv.num}
                       </span>
-                      <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-[#00F5D4] group-hover:scale-105 group-hover:bg-[#00F5D4]/10 transition-all">
-                        <Icon className="w-5 h-5" />
+                      <div className="p-2.5 sm:p-3 rounded-xl bg-white/5 border border-white/10 text-[#00F5D4] group-hover:scale-105 group-hover:bg-[#00F5D4]/10 transition-all">
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
                     </div>
-                    <span className="text-xs font-mono uppercase tracking-widest text-[#00F5D4] block mb-2">
+                    <span className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-[#00F5D4] block mb-1.5 sm:mb-2">
                       {srv.badge}
                     </span>
-                    <h3 className="font-bold text-xl uppercase tracking-tight text-white group-hover:text-[#00F5D4] transition-colors mb-2.5">
+                    <h3 className="font-bold text-lg sm:text-xl uppercase tracking-tight text-white group-hover:text-[#00F5D4] transition-colors mb-2">
                       {srv.title}
                     </h3>
-                    <p className="text-sm font-light leading-relaxed text-[#D7E2EA]/80">
+                    <p className="text-xs sm:text-sm font-light leading-relaxed text-[#D7E2EA]/80">
                       {srv.desc}
                     </p>
                   </div>
 
-                  <div className="pt-4 mt-5 border-t border-white/10 flex items-center gap-1.5 text-xs font-mono text-[#00F5D4]">
+                  <div className="pt-3.5 mt-4 sm:pt-4 sm:mt-5 border-t border-white/10 flex items-center gap-1.5 text-xs font-mono text-[#00F5D4]">
                     <span>EXPLORE CAPABILITIES</span>
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -1045,8 +1190,18 @@ const PROJECTS_DATA = [
       "Full-stack web application for real-time appointment scheduling and intelligent queue management. Implemented multi-role system (Admin, Staff, Customer) with JWT authentication, Cloudinary file uploads, QR code generation, Recharts analytics dashboards, and CSV export. Backend hosted on Render, frontend on Vercel, database on MongoDB Atlas. Integrated AI-assisted scheduling logic improving booking efficiency by ~35%.",
     liveUrl: "https://slotly.ksangam.dpdns.org",
     githubUrl: "https://github.com/ksangam990-collab",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-    tech: ["MERN Stack", "JWT", "Cloudinary", "Recharts", "AI Integration", "Vercel & Render", "QR Generation", "CSV Export"],
+    image:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+    tech: [
+      "MERN Stack",
+      "JWT",
+      "Cloudinary",
+      "Recharts",
+      "AI Integration",
+      "Vercel & Render",
+      "QR Generation",
+      "CSV Export",
+    ],
   },
   {
     num: "02",
@@ -1057,8 +1212,16 @@ const PROJECTS_DATA = [
       "Responsive portfolio web experience showcasing production projects, technical skills, and certifications using React.js with mobile-first CSS Flexbox/Grid layout and 3D visual engineering. Deployed on custom domain with Git version control.",
     liveUrl: "https://portfolio.ksangam.dpdns.org",
     githubUrl: "https://github.com/ksangam990-collab",
-    image: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80",
-    tech: ["React.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Vercel", "Cloudflare DNS"],
+    image:
+      "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80",
+    tech: [
+      "React.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "Framer Motion",
+      "Vercel",
+      "Cloudflare DNS",
+    ],
   },
   {
     num: "03",
@@ -1069,8 +1232,17 @@ const PROJECTS_DATA = [
       "Engineered 15+ secure RESTful APIs powering real-time queue tracking, role-based access validation, automated notifications, and AI slot suggestions. Connected with MongoDB Atlas clustering and hosted on Render.",
     liveUrl: "https://slotly.ksangam.dpdns.org",
     githubUrl: "https://github.com/ksangam990-collab",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80",
-    tech: ["Node.js", "Express.js", "REST APIs", "JWT Auth", "Postman", "Render", "MongoDB Atlas"],
+    image:
+      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80",
+    tech: [
+      "Node.js",
+      "Express.js",
+      "REST APIs",
+      "JWT Auth",
+      "Postman",
+      "Render",
+      "MongoDB Atlas",
+    ],
   },
 ];
 
@@ -1258,72 +1430,92 @@ const ProjectsSection: React.FC = () => {
 };
 
 // =========================================================================
-// 12. EXPERIENCE, EDUCATION & CERTIFICATIONS
+// 12. EXPERIENCE & EDUCATION (FIXED MOBILE WRAPPING & ALIGNMENT)
 // =========================================================================
 const ExperienceSection: React.FC = () => (
-  <section id="experience" className="py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10">
+  <section
+    id="experience"
+    className="py-16 sm:py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10"
+  >
     <div className="max-w-6xl mx-auto">
       <FadeIn delay={0} y={25}>
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 sm:mb-12">
           <span className="text-xs uppercase tracking-widest text-[#00F5D4] font-mono block mb-2">
             [ Comprehensive Record ]
           </span>
-          <h2 className="font-black uppercase tracking-tight text-4xl sm:text-5xl text-white">
+          <h2 className="font-black uppercase tracking-tight text-3xl sm:text-5xl text-white">
             Experience & Education
           </h2>
         </div>
       </FadeIn>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        <div className="flex flex-col gap-5 sm:gap-6">
           <FadeIn delay={0.1} y={20}>
-            <div className="p-7 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl">
-              <div className="flex items-center gap-2 text-[#00F5D4] font-mono text-xs uppercase mb-2">
+            <div className="p-5 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl">
+              <div className="flex items-center gap-2 text-[#00F5D4] font-mono text-[11px] sm:text-xs uppercase mb-2">
                 <Briefcase className="w-4 h-4" />
                 <span>Internship Experience</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">
+              <h3 className="text-lg sm:text-2xl font-bold text-white mb-1">
                 MERN Stack Developer Intern
               </h3>
               <p className="text-xs sm:text-sm font-medium text-purple-400 mb-4">
                 TechnoExponent / Euphoria GenX • May 2026 – Jun 2026
               </p>
 
-              <ul className="space-y-3 text-xs sm:text-sm text-[#D7E2EA]/85 font-light">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#00F5D4] shrink-0 mt-0.5" />
-                  <span>Built and deployed full-stack Smart Appointment & Queue Booking System (Slotly) — MERN Stack, live at slotly.ksangam.dpdns.org, serving admin/staff/customer roles.</span>
+              <ul className="space-y-3 text-xs sm:text-sm text-[#D7E2EA]/85 font-light leading-relaxed">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#00F5D4] shrink-0 mt-0.5" />
+                  <span>
+                    Built and deployed full-stack Smart Appointment & Queue
+                    Booking System (Slotly) — MERN Stack, live at
+                    slotly.ksangam.dpdns.org, serving admin/staff/customer
+                    roles.
+                  </span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#00F5D4] shrink-0 mt-0.5" />
-                  <span>Designed 15+ RESTful APIs for real-time scheduling and queue tracking, reducing manual booking effort by ~40%.</span>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#00F5D4] shrink-0 mt-0.5" />
+                  <span>
+                    Designed 15+ RESTful APIs for real-time scheduling and queue
+                    tracking, reducing manual booking effort by ~40%.
+                  </span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#00F5D4] shrink-0 mt-0.5" />
-                  <span>Implemented JWT authentication and role-based access control across 3 user roles; used Cloudinary, Recharts, and QR code generation.</span>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#00F5D4] shrink-0 mt-0.5" />
+                  <span>
+                    Implemented JWT authentication and role-based access control
+                    across 3 user roles; used Cloudinary, Recharts, and QR code
+                    generation.
+                  </span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#00F5D4] shrink-0 mt-0.5" />
-                  <span>Integrated AI-driven scheduling logic to automate slot recommendations and reduce booking conflicts.</span>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#00F5D4] shrink-0 mt-0.5" />
+                  <span>
+                    Integrated AI-driven scheduling logic to automate slot
+                    recommendations and reduce booking conflicts.
+                  </span>
                 </li>
               </ul>
             </div>
           </FadeIn>
 
           <FadeIn delay={0.15} y={20}>
-            <div className="p-7 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl">
-              <div className="flex items-center gap-2 text-yellow-400 font-mono text-xs uppercase mb-2">
+            <div className="p-5 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl">
+              <div className="flex items-center gap-2 text-yellow-400 font-mono text-[11px] sm:text-xs uppercase mb-2">
                 <Award className="w-4 h-4" />
                 <span>Government Certified Training</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">
+              <h3 className="text-lg sm:text-2xl font-bold text-white mb-1">
                 C Programming Trainee
               </h3>
               <p className="text-xs sm:text-sm font-medium text-[#00F5D4] mb-3">
                 E & ICT Academy, IIT Kanpur (MeitY) • Jun 2022
               </p>
               <p className="text-xs sm:text-sm text-[#D7E2EA]/80 font-light leading-relaxed">
-                Completed a government-certified 4-week training programme covering data types, control structures, functions, arrays, and pointers in C.
+                Completed a government-certified 4-week training programme
+                covering data types, control structures, functions, arrays, and
+                pointers in C.
               </p>
             </div>
           </FadeIn>
@@ -1331,50 +1523,66 @@ const ExperienceSection: React.FC = () => (
 
         <div className="flex flex-col gap-6">
           <FadeIn delay={0.2} y={20}>
-            <div className="p-7 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl h-full flex flex-col justify-between">
+            <div className="p-5 sm:p-8 rounded-2xl bg-[#0A0E17]/85 backdrop-blur-xl border border-white/15 shadow-2xl h-full flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2 text-purple-400 font-mono text-xs uppercase mb-3">
+                <div className="flex items-center gap-2 text-purple-400 font-mono text-[11px] sm:text-xs uppercase mb-3">
                   <GraduationCap className="w-4 h-4" />
                   <span>Academic Qualifications</span>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-white font-bold text-sm sm:text-base">B.Tech, Computer Science & Engineering</h4>
-                      <span className="text-xs font-mono text-[#00F5D4]">2025 – 2028</span>
+                <div className="space-y-4 sm:space-y-5">
+                  {/* B.Tech */}
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 border border-white/5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+                      <h4 className="text-white font-bold text-sm sm:text-base leading-snug">
+                        B.Tech, Computer Science & Engineering
+                      </h4>
+                      <span className="text-xs font-mono text-[#00F5D4] shrink-0 whitespace-nowrap">
+                        2025 – 2028
+                      </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-[#D7E2EA]/80 mt-1">
-                      RVS College of Engineering & Technology, Jamshedpur — Jharkhand University of Technology
+                    <p className="text-xs sm:text-sm text-[#D7E2EA]/80 mt-1.5 leading-relaxed">
+                      RVS College of Engineering & Technology, Jamshedpur —
+                      Jharkhand University of Technology
                     </p>
-                    <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-[#00F5D4]/10 text-[#00F5D4] text-xs font-mono">
+                    <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-[#00F5D4]/10 text-[#00F5D4] text-[11px] sm:text-xs font-mono">
                       Currently in 2nd Year
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-white font-bold text-sm sm:text-base">Diploma, Computer Science & Engineering</h4>
-                      <span className="text-xs font-mono text-purple-400">2023 – 2025</span>
+                  {/* Diploma */}
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 border border-white/5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+                      <h4 className="text-white font-bold text-sm sm:text-base leading-snug">
+                        Diploma, Computer Science & Engineering
+                      </h4>
+                      <span className="text-xs font-mono text-purple-400 shrink-0 whitespace-nowrap">
+                        2023 – 2025
+                      </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-[#D7E2EA]/80 mt-1">
+                    <p className="text-xs sm:text-sm text-[#D7E2EA]/80 mt-1.5 leading-relaxed">
                       Buddha Institute of Technology, Gaya (Bihar) — SBTE Board
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-white font-bold text-sm sm:text-base">Class XII, PCM</h4>
-                      <span className="text-xs font-mono text-gray-400">2019 – 2021</span>
+                  {/* Class XII */}
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 border border-white/5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+                      <h4 className="text-white font-bold text-sm sm:text-base leading-snug">
+                        Class XII, PCM
+                      </h4>
+                      <span className="text-xs font-mono text-gray-400 shrink-0 whitespace-nowrap">
+                        2019 – 2021
+                      </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-[#D7E2EA]/80 mt-1">
+                    <p className="text-xs sm:text-sm text-[#D7E2EA]/80 mt-1.5 leading-relaxed">
                       Shree Nehru Smarak +2 High School — BSEB Board
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-[#D7E2EA]/60">
+              <div className="mt-5 pt-3.5 border-t border-white/10 flex items-center justify-between text-[11px] sm:text-xs font-mono text-[#D7E2EA]/60">
                 <span>Verified Education History</span>
                 <span>India</span>
               </div>
@@ -1413,11 +1621,11 @@ const ContactModal: React.FC<{
             initial={{ opacity: 0, scale: 0.9, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 15 }}
-            className="relative w-full max-w-xl bg-[#0D121D] border-2 border-[#00F5D4]/50 rounded-3xl p-6 sm:p-8 text-[#D7E2EA] shadow-[0_0_80px_rgba(0,245,212,0.3)] max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-xl bg-[#0D121D] border-2 border-[#00F5D4]/50 rounded-3xl p-5 sm:p-8 text-[#D7E2EA] shadow-[0_0_80px_rgba(0,245,212,0.3)] max-h-[90vh] overflow-y-auto"
           >
             <button
               onClick={onClose}
-              className="absolute top-5 right-5 p-2 rounded-full bg-white/10 hover:bg-[#00F5D4]/20 text-white transition-colors cursor-pointer"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full bg-white/10 hover:bg-[#00F5D4]/20 text-white transition-colors cursor-pointer"
               aria-label="Close modal"
             >
               <X className="w-4 h-4" />
@@ -1435,17 +1643,29 @@ const ContactModal: React.FC<{
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
               <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#151A27] border border-white/10 hover:border-[#00F5D4] transition-all group">
-                <a href="mailto:ksangam990@gmail.com" className="flex items-center gap-3 overflow-hidden">
+                <a
+                  href="mailto:ksangam990@gmail.com"
+                  className="flex items-center gap-3 overflow-hidden"
+                >
                   <div className="p-2 rounded-lg bg-[#00F5D4]/15 text-[#00F5D4]">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div className="truncate">
-                    <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">Email</span>
-                    <span className="text-white text-xs sm:text-sm font-medium truncate block">ksangam990@gmail.com</span>
+                    <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">
+                      Email
+                    </span>
+                    <span className="text-white text-xs sm:text-sm font-medium truncate block">
+                      ksangam990@gmail.com
+                    </span>
                   </div>
                 </a>
                 <button
-                  onClick={() => onCopy("ksangam990@gmail.com", "Email address copied to clipboard")}
+                  onClick={() =>
+                    onCopy(
+                      "ksangam990@gmail.com",
+                      "Email address copied to clipboard",
+                    )
+                  }
                   title="Copy Email"
                   className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white cursor-pointer"
                 >
@@ -1459,12 +1679,18 @@ const ContactModal: React.FC<{
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">Phone</span>
-                    <span className="text-white text-xs sm:text-sm font-medium">+91 9693041674</span>
+                    <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">
+                      Phone
+                    </span>
+                    <span className="text-white text-xs sm:text-sm font-medium">
+                      +91 9693041674
+                    </span>
                   </div>
                 </a>
                 <button
-                  onClick={() => onCopy("+919693041674", "Phone number copied to clipboard")}
+                  onClick={() =>
+                    onCopy("+919693041674", "Phone number copied to clipboard")
+                  }
                   title="Copy Phone"
                   className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white cursor-pointer"
                 >
@@ -1482,7 +1708,9 @@ const ContactModal: React.FC<{
                   <Linkedin className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">LinkedIn</span>
+                  <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">
+                    LinkedIn
+                  </span>
                   <span className="text-white font-medium">sangam-kumar07</span>
                 </div>
               </a>
@@ -1497,8 +1725,12 @@ const ContactModal: React.FC<{
                   <Github className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">GitHub</span>
-                  <span className="text-white font-medium">ksangam990-collab</span>
+                  <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">
+                    GitHub
+                  </span>
+                  <span className="text-white font-medium">
+                    ksangam990-collab
+                  </span>
                 </div>
               </a>
             </div>
@@ -1526,24 +1758,52 @@ const ContactModal: React.FC<{
 };
 
 // =========================================================================
-// 14. FOOTER
+// 14. FOOTER (MOBILE ALIGNED)
 // =========================================================================
-const Footer: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) => (
-  <footer className="border-t border-white/10 py-10 px-4 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-4 text-[#D7E2EA]/60 text-xs sm:text-sm relative z-10 bg-transparent">
+const Footer: React.FC<{ onContactClick: () => void }> = ({
+  onContactClick,
+}) => (
+  <footer className="border-t border-white/10 py-8 sm:py-10 px-4 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-5 text-[#D7E2EA]/70 text-xs sm:text-sm relative z-10 bg-transparent text-center md:text-left">
     <div>
       <p className="uppercase tracking-wider font-semibold text-white">
         Sangam Kumar — Full Stack MERN Developer
       </p>
-      <p className="text-[11px] text-[#D7E2EA]/40 mt-0.5 font-mono">
+      <p className="text-[11px] text-[#D7E2EA]/50 mt-1 font-mono">
         Engineered with React, TypeScript, Tailwind CSS & 3D Vector Math
       </p>
     </div>
 
-    <div className="flex items-center gap-5 font-mono text-xs uppercase">
-      <a href="https://github.com/ksangam990-collab" target="_blank" rel="noopener noreferrer" className="hover:text-[#00F5D4] transition-colors">GitHub</a>
-      <a href="https://linkedin.com/in/sangam-kumar07" target="_blank" rel="noopener noreferrer" className="hover:text-[#00F5D4] transition-colors">LinkedIn</a>
-      <a href="https://slotly.ksangam.dpdns.org" target="_blank" rel="noopener noreferrer" className="hover:text-[#00F5D4] transition-colors">Slotly Live</a>
-      <button onClick={onContactClick} className="text-[#00F5D4] hover:underline cursor-pointer">Contact</button>
+    <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 font-mono text-xs uppercase">
+      <a
+        href="https://github.com/ksangam990-collab"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:text-[#00F5D4] transition-colors"
+      >
+        GitHub
+      </a>
+      <a
+        href="https://linkedin.com/in/sangam-kumar07"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:text-[#00F5D4] transition-colors"
+      >
+        LinkedIn
+      </a>
+      <a
+        href="https://slotly.ksangam.dpdns.org"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:text-[#00F5D4] transition-colors"
+      >
+        Slotly Live
+      </a>
+      <button
+        onClick={onContactClick}
+        className="text-[#00F5D4] hover:underline cursor-pointer"
+      >
+        Contact
+      </button>
     </div>
   </footer>
 );
