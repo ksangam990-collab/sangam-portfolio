@@ -45,8 +45,7 @@ const use3DCanvasFavicon = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let faviconLink =
-      document.querySelector<HTMLLinkElement>("link[rel*='icon']");
+    let faviconLink = document.querySelector<HTMLLinkElement>("link[rel*='icon']");
     if (!faviconLink) {
       faviconLink = document.createElement("link");
       faviconLink.rel = "icon";
@@ -54,20 +53,13 @@ const use3DCanvasFavicon = () => {
     }
 
     const nodes: [number, number, number][] = [
-      [-0.7, 0.8, -0.3],
-      [0.7, 0.8, 0.3],
-      [-0.7, 0.1, 0.3],
-      [0.7, 0.1, -0.3],
-      [-0.7, -0.8, -0.3],
-      [0.7, -0.8, 0.3],
+      [-0.7, 0.8, -0.3], [0.7, 0.8, 0.3],
+      [-0.7, 0.1, 0.3],  [0.7, 0.1, -0.3],
+      [-0.7, -0.8, -0.3], [0.7, -0.8, 0.3],
     ];
 
     const edges = [
-      [0, 1],
-      [0, 2],
-      [2, 3],
-      [3, 5],
-      [4, 5],
+      [0, 1], [0, 2], [2, 3], [3, 5], [4, 5]
     ];
 
     let angle = 0;
@@ -144,10 +136,7 @@ const CustomCyberCursor: React.FC = () => {
   const [isTouchDevice, setIsTouchDevice] = useState(true);
 
   useEffect(() => {
-    if (
-      window.matchMedia("(pointer: coarse)").matches ||
-      "ontouchstart" in window
-    ) {
+    if (window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window) {
       return;
     }
     setIsTouchDevice(false);
@@ -158,7 +147,7 @@ const CustomCyberCursor: React.FC = () => {
 
       const target = e.target as HTMLElement | null;
       const isInteractive = !!target?.closest(
-        "button, a, input, [role='button'], .hover-interactive",
+        "button, a, input, [role='button'], .hover-interactive"
       );
       setIsHovered(isInteractive);
     };
@@ -201,9 +190,7 @@ const CustomCyberCursor: React.FC = () => {
           width: isHovered ? 48 : 32,
           height: isHovered ? 48 : 32,
           borderColor: isHovered ? "#00F5D4" : "rgba(123, 44, 191, 0.65)",
-          backgroundColor: isHovered
-            ? "rgba(0, 245, 212, 0.08)"
-            : "transparent",
+          backgroundColor: isHovered ? "rgba(0, 245, 212, 0.08)" : "transparent",
           scale: isClicked ? 0.8 : 1,
         }}
         transition={{ type: "spring", stiffness: 380, damping: 26 }}
@@ -236,22 +223,14 @@ const Interactive3DMatrixTerrain: React.FC = () => {
     const handleResize = () => {
       if (!canvas) return;
       const curIsMobile = window.innerWidth < 768;
-      const curDpr = curIsMobile
-        ? 1
-        : Math.min(window.devicePixelRatio || 1, 1.5);
+      const curDpr = curIsMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
       width = canvas.width = window.innerWidth * curDpr;
       height = canvas.height = window.innerHeight * curDpr;
       ctx.scale(curDpr, curDpr);
     };
     window.addEventListener("resize", handleResize, { passive: true });
 
-    const ripples: {
-      x: number;
-      y: number;
-      r: number;
-      maxR: number;
-      alpha: number;
-    }[] = [];
+    const ripples: { x: number; y: number; r: number; maxR: number; alpha: number }[] = [];
     const onClick = (e: MouseEvent) => {
       if (isMobile) return;
       ripples.push({
@@ -349,9 +328,7 @@ const Interactive3DMatrixTerrain: React.FC = () => {
           const wz = (r - rows / 2) * spacing;
 
           const dist = Math.sqrt(wx * wx + wz * wz);
-          const wy =
-            Math.sin(dist * 0.025 - time) * 28 +
-            Math.cos(wx * 0.04 + time) * 14;
+          const wy = Math.sin(dist * 0.025 - time) * 28 + Math.cos(wx * 0.04 + time) * 14;
 
           const cosY = Math.cos(rotY);
           const sinY = Math.sin(rotY);
@@ -454,49 +431,20 @@ const InteractivePolyhedron3D: React.FC = () => {
     const b = 1 / phi;
 
     const vertices = [
-      [-b, a, 0],
-      [b, a, 0],
-      [-b, -a, 0],
-      [b, -a, 0],
-      [0, -b, a],
-      [0, b, a],
-      [0, -b, -a],
-      [0, b, -a],
-      [a, 0, -b],
-      [a, 0, b],
-      [-a, 0, -b],
-      [-a, 0, b],
+      [-b, a, 0], [b, a, 0], [-b, -a, 0], [b, -a, 0],
+      [0, -b, a], [0, b, a], [0, -b, -a], [0, b, -a],
+      [a, 0, -b], [a, 0, b], [-a, 0, -b], [-a, 0, b],
     ];
 
     const edges = [
-      [0, 1],
-      [0, 5],
-      [0, 7],
-      [0, 10],
-      [0, 11],
-      [1, 5],
-      [1, 7],
-      [1, 8],
-      [1, 9],
-      [2, 3],
-      [2, 4],
-      [2, 6],
-      [2, 10],
-      [2, 11],
-      [3, 4],
-      [3, 6],
-      [3, 8],
-      [3, 9],
-      [4, 5],
-      [4, 9],
-      [4, 11],
-      [5, 9],
-      [5, 11],
-      [6, 7],
-      [6, 8],
-      [6, 10],
-      [7, 8],
-      [7, 10],
+      [0, 1], [0, 5], [0, 7], [0, 10], [0, 11],
+      [1, 5], [1, 7], [1, 8], [1, 9],
+      [2, 3], [2, 4], [2, 6], [2, 10], [2, 11],
+      [3, 4], [3, 6], [3, 8], [3, 9],
+      [4, 5], [4, 9], [4, 11],
+      [5, 9], [5, 11],
+      [6, 7], [6, 8], [6, 10],
+      [7, 8], [7, 10],
       [8, 9],
       [10, 11],
     ];
@@ -603,9 +551,7 @@ const ScrollHUD: React.FC<{ activeSection: string }> = ({ activeSection }) => {
             <button
               key={sec.id}
               onClick={() => {
-                document
-                  .getElementById(sec.id)
-                  ?.scrollIntoView({ behavior: "smooth" });
+                document.getElementById(sec.id)?.scrollIntoView({ behavior: "smooth" });
               }}
               className="group relative flex items-center justify-end cursor-pointer"
             >
@@ -630,10 +576,7 @@ const ScrollHUD: React.FC<{ activeSection: string }> = ({ activeSection }) => {
 // =========================================================================
 // 5. TOAST NOTIFICATION
 // =========================================================================
-const Toast: React.FC<{ message: string | null; onClose: () => void }> = ({
-  message,
-  onClose,
-}) => {
+const Toast: React.FC<{ message: string | null; onClose: () => void }> = ({ message, onClose }) => {
   useEffect(() => {
     if (message) {
       const timer = setTimeout(onClose, 2400);
@@ -659,11 +602,11 @@ const Toast: React.FC<{ message: string | null; onClose: () => void }> = ({
 // =========================================================================
 // 6. 3D GYRO PERSPECTIVE TILT (DESKTOP ONLY)
 // =========================================================================
-const TiltCard3D: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-  intensity?: number;
-}> = ({ children, className = "", intensity = 8 }) => {
+const TiltCard3D: React.FC<{ children: React.ReactNode; className?: string; intensity?: number }> = ({
+  children,
+  className = "",
+  intensity = 8,
+}) => {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -671,16 +614,8 @@ const TiltCard3D: React.FC<{
   const mouseXSpring = useSpring(x, { stiffness: 180, damping: 20 });
   const mouseYSpring = useSpring(y, { stiffness: 180, damping: 20 });
 
-  const rotateX = useTransform(
-    mouseYSpring,
-    [-0.5, 0.5],
-    [intensity, -intensity],
-  );
-  const rotateY = useTransform(
-    mouseXSpring,
-    [-0.5, 0.5],
-    [-intensity, intensity],
-  );
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [intensity, -intensity]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-intensity, intensity]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current || window.innerWidth < 768) return;
@@ -717,14 +652,7 @@ const FadeIn: React.FC<{
   x?: number;
   y?: number;
   className?: string;
-}> = ({
-  children,
-  delay = 0,
-  duration = 0.5,
-  x = 0,
-  y = 20,
-  className = "",
-}) => (
+}> = ({ children, delay = 0, duration = 0.5, x = 0, y = 20, className = "" }) => (
   <motion.div
     initial={{ opacity: 0, x, y }}
     whileInView={{ opacity: 1, x: 0, y: 0 }}
@@ -772,14 +700,7 @@ const AnimatedBioText: React.FC<{ text: string }> = ({ text }) => {
       {words.map((word, i) => {
         const start = i / words.length;
         const end = (i + 1) / words.length;
-        return (
-          <AnimatedWord
-            key={i}
-            word={word}
-            progress={scrollYProgress}
-            range={[start, end]}
-          />
-        );
+        return <AnimatedWord key={i} word={word} progress={scrollYProgress} range={[start, end]} />;
       })}
     </p>
   );
@@ -816,36 +737,16 @@ const HeroSection: React.FC<{
   >
     <FadeIn delay={0} y={-10} className="w-full max-w-6xl mx-auto">
       <header className="flex items-center justify-between w-full backdrop-blur-xl py-2.5 px-4 sm:py-3 sm:px-6 rounded-full border border-white/15 bg-[#05070D]/80 shadow-2xl">
-        <a
-          href="#"
-          className="flex items-center gap-2 font-mono text-xs sm:text-sm tracking-widest text-[#00F5D4] uppercase"
-        >
+        <a href="#" className="flex items-center gap-2 font-mono text-xs sm:text-sm tracking-widest text-[#00F5D4] uppercase">
           <span className="w-2 h-2 rounded-full bg-[#00F5D4] animate-ping" />
           <span>SANGAM.DEV</span>
         </a>
 
         <nav className="hidden md:flex items-center gap-8 text-sm uppercase tracking-wider font-medium text-[#D7E2EA]/80">
-          <a href="#about" className="hover:text-[#00F5D4] transition-colors">
-            About
-          </a>
-          <a
-            href="#services"
-            className="hover:text-[#00F5D4] transition-colors"
-          >
-            Services
-          </a>
-          <a
-            href="#projects"
-            className="hover:text-[#00F5D4] transition-colors"
-          >
-            Projects
-          </a>
-          <a
-            href="#experience"
-            className="hover:text-[#00F5D4] transition-colors"
-          >
-            Experience
-          </a>
+          <a href="#about" className="hover:text-[#00F5D4] transition-colors">About</a>
+          <a href="#services" className="hover:text-[#00F5D4] transition-colors">Services</a>
+          <a href="#projects" className="hover:text-[#00F5D4] transition-colors">Projects</a>
+          <a href="#experience" className="hover:text-[#00F5D4] transition-colors">Experience</a>
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -885,23 +786,16 @@ const HeroSection: React.FC<{
 
       <FadeIn delay={0.2} y={15}>
         <p className="max-w-2xl text-[#D7E2EA]/90 font-light text-xs sm:text-base md:text-lg mt-3 leading-relaxed mx-auto px-3">
-          Architecting scalable production web applications, high-throughput
-          REST APIs, and dynamic 3D user experiences.
+          Architecting scalable production web applications, high-throughput REST APIs, and dynamic 3D user experiences.
         </p>
       </FadeIn>
 
-      <FadeIn
-        delay={0.25}
-        y={15}
-        className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xs sm:max-w-none mx-auto"
-      >
+      <FadeIn delay={0.25} y={15} className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xs sm:max-w-none mx-auto">
         <GlowingPillButton
           label="Explore Projects"
           className="w-full sm:w-auto"
           onClick={() => {
-            document
-              .getElementById("projects")
-              ?.scrollIntoView({ behavior: "smooth" });
+            document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
           }}
         />
         <a
@@ -920,36 +814,20 @@ const HeroSection: React.FC<{
     <FadeIn delay={0.3} y={15} className="w-full max-w-5xl mx-auto">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-white/15 backdrop-blur-sm text-center">
         <div className="flex flex-col items-center p-2">
-          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">
-            15+
-          </span>
-          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">
-            RESTful APIs Built
-          </span>
+          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">15+</span>
+          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">RESTful APIs Built</span>
         </div>
         <div className="flex flex-col items-center p-2">
-          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">
-            ~40%
-          </span>
-          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">
-            Efficiency Boost
-          </span>
+          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">~40%</span>
+          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">Efficiency Boost</span>
         </div>
         <div className="flex flex-col items-center p-2">
-          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">
-            3 Roles
-          </span>
-          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">
-            RBAC Security
-          </span>
+          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">3 Roles</span>
+          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">RBAC Security</span>
         </div>
         <div className="flex flex-col items-center p-2">
-          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">
-            IIT-K
-          </span>
-          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">
-            MeitY Certified
-          </span>
+          <span className="font-mono text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00F5D4] to-[#4361EE]">IIT-K</span>
+          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#D7E2EA]/60 font-medium mt-0.5">MeitY Certified</span>
         </div>
       </div>
     </FadeIn>
@@ -968,25 +846,12 @@ const SKILL_CATEGORIES = [
   {
     category: "Frontend Stack",
     icon: Layers,
-    skills: [
-      "React.js",
-      "Redux (basics)",
-      "HTML5",
-      "CSS3",
-      "Framer Motion",
-      "Tailwind CSS",
-    ],
+    skills: ["React.js", "Redux (basics)", "HTML5", "CSS3", "Framer Motion", "Tailwind CSS"],
   },
   {
     category: "Backend & Systems",
     icon: Server,
-    skills: [
-      "Node.js",
-      "Express.js",
-      "REST APIs",
-      "JWT Authentication",
-      "Role-Based Access Control (RBAC)",
-    ],
+    skills: ["Node.js", "Express.js", "REST APIs", "JWT Authentication", "Role-Based Access Control (RBAC)"],
   },
   {
     category: "Database & Cloud DevOps",
@@ -1001,27 +866,16 @@ const SKILL_CATEGORIES = [
   {
     category: "Integrations & Workflows",
     icon: Sparkles,
-    skills: [
-      "AI Integration",
-      "QR Code Generation",
-      "CSV Export",
-      "Recharts Analytics",
-      "Agile Workflow",
-    ],
+    skills: ["AI Integration", "QR Code Generation", "CSV Export", "Recharts Analytics", "Agile Workflow"],
   },
 ];
 
-const AboutSection: React.FC<{ onContactClick: () => void }> = ({
-  onContactClick,
-}) => {
+const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) => {
   const bioSummary =
     "Full Stack MERN Developer with proven experience building and deploying production-grade web applications. Proficient in React.js, Node.js, Express.js, MongoDB, JWT authentication, and REST API design. Active on GitHub with personal and internship projects, holding IIT Kanpur (MeitY) and industrial certifications. Seeking a Full Stack / Frontend Developer role to deliver scalable, user-focused digital solutions.";
 
   return (
-    <section
-      id="about"
-      className="relative min-h-[90vh] w-full flex flex-col items-center justify-center px-4 sm:px-10 lg:px-16 py-16 sm:py-20 z-10 bg-transparent"
-    >
+    <section id="about" className="relative min-h-[90vh] w-full flex flex-col items-center justify-center px-4 sm:px-10 lg:px-16 py-16 sm:py-20 z-10 bg-transparent">
       <div className="max-w-5xl mx-auto flex flex-col items-center text-center">
         <FadeIn delay={0} y={20}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/40 bg-purple-500/10 text-xs font-mono text-purple-300 uppercase tracking-widest mb-4">
@@ -1048,9 +902,7 @@ const AboutSection: React.FC<{ onContactClick: () => void }> = ({
                         <div className="p-2 rounded-xl bg-cyan-500/10 text-[#00F5D4]">
                           <Icon className="w-4 h-4" />
                         </div>
-                        <h3 className="font-semibold text-white text-sm sm:text-base">
-                          {cat.category}
-                        </h3>
+                        <h3 className="font-semibold text-white text-sm sm:text-base">{cat.category}</h3>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {cat.skills.map((skill) => (
@@ -1120,10 +972,7 @@ const SERVICES_DATA = [
 ];
 
 const ServicesSection: React.FC = () => (
-  <section
-    id="services"
-    className="px-4 sm:px-10 lg:px-16 py-16 sm:py-20 relative z-10 bg-transparent"
-  >
+  <section id="services" className="px-4 sm:px-10 lg:px-16 py-16 sm:py-20 relative z-10 bg-transparent">
     <div className="max-w-6xl mx-auto">
       <FadeIn delay={0} y={20}>
         <div className="text-center mb-10 sm:mb-12">
@@ -1190,18 +1039,8 @@ const PROJECTS_DATA = [
       "Full-stack web application for real-time appointment scheduling and intelligent queue management. Implemented multi-role system (Admin, Staff, Customer) with JWT authentication, Cloudinary file uploads, QR code generation, Recharts analytics dashboards, and CSV export. Backend hosted on Render, frontend on Vercel, database on MongoDB Atlas. Integrated AI-assisted scheduling logic improving booking efficiency by ~35%.",
     liveUrl: "https://slotly.ksangam.dpdns.org",
     githubUrl: "https://github.com/ksangam990-collab",
-    image:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-    tech: [
-      "MERN Stack",
-      "JWT",
-      "Cloudinary",
-      "Recharts",
-      "AI Integration",
-      "Vercel & Render",
-      "QR Generation",
-      "CSV Export",
-    ],
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+    tech: ["MERN Stack", "JWT", "Cloudinary", "Recharts", "AI Integration", "Vercel & Render", "QR Generation", "CSV Export"],
   },
   {
     num: "02",
@@ -1212,16 +1051,8 @@ const PROJECTS_DATA = [
       "Responsive portfolio web experience showcasing production projects, technical skills, and certifications using React.js with mobile-first CSS Flexbox/Grid layout and 3D visual engineering. Deployed on custom domain with Git version control.",
     liveUrl: "https://portfolio.ksangam.dpdns.org",
     githubUrl: "https://github.com/ksangam990-collab",
-    image:
-      "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80",
-    tech: [
-      "React.js",
-      "TypeScript",
-      "Tailwind CSS",
-      "Framer Motion",
-      "Vercel",
-      "Cloudflare DNS",
-    ],
+    image: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80",
+    tech: ["React.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Vercel", "Cloudflare DNS"],
   },
   {
     num: "03",
@@ -1232,17 +1063,8 @@ const PROJECTS_DATA = [
       "Engineered 15+ secure RESTful APIs powering real-time queue tracking, role-based access validation, automated notifications, and AI slot suggestions. Connected with MongoDB Atlas clustering and hosted on Render.",
     liveUrl: "https://slotly.ksangam.dpdns.org",
     githubUrl: "https://github.com/ksangam990-collab",
-    image:
-      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80",
-    tech: [
-      "Node.js",
-      "Express.js",
-      "REST APIs",
-      "JWT Auth",
-      "Postman",
-      "Render",
-      "MongoDB Atlas",
-    ],
+    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80",
+    tech: ["Node.js", "Express.js", "REST APIs", "JWT Auth", "Postman", "Render", "MongoDB Atlas"],
   },
 ];
 
@@ -1433,10 +1255,7 @@ const ProjectsSection: React.FC = () => {
 // 12. EXPERIENCE & EDUCATION (FIXED MOBILE WRAPPING & ALIGNMENT)
 // =========================================================================
 const ExperienceSection: React.FC = () => (
-  <section
-    id="experience"
-    className="py-16 sm:py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10"
-  >
+  <section id="experience" className="py-16 sm:py-24 px-4 sm:px-10 lg:px-16 relative z-10 bg-transparent border-t border-white/10">
     <div className="max-w-6xl mx-auto">
       <FadeIn delay={0} y={25}>
         <div className="text-center mb-10 sm:mb-12">
@@ -1467,34 +1286,19 @@ const ExperienceSection: React.FC = () => (
               <ul className="space-y-3 text-xs sm:text-sm text-[#D7E2EA]/85 font-light leading-relaxed">
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#00F5D4] shrink-0 mt-0.5" />
-                  <span>
-                    Built and deployed full-stack Smart Appointment & Queue
-                    Booking System (Slotly) — MERN Stack, live at
-                    slotly.ksangam.dpdns.org, serving admin/staff/customer
-                    roles.
-                  </span>
+                  <span>Built and deployed full-stack Smart Appointment & Queue Booking System (Slotly) — MERN Stack, live at slotly.ksangam.dpdns.org, serving admin/staff/customer roles.</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#00F5D4] shrink-0 mt-0.5" />
-                  <span>
-                    Designed 15+ RESTful APIs for real-time scheduling and queue
-                    tracking, reducing manual booking effort by ~40%.
-                  </span>
+                  <span>Designed 15+ RESTful APIs for real-time scheduling and queue tracking, reducing manual booking effort by ~40%.</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#00F5D4] shrink-0 mt-0.5" />
-                  <span>
-                    Implemented JWT authentication and role-based access control
-                    across 3 user roles; used Cloudinary, Recharts, and QR code
-                    generation.
-                  </span>
+                  <span>Implemented JWT authentication and role-based access control across 3 user roles; used Cloudinary, Recharts, and QR code generation.</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#00F5D4] shrink-0 mt-0.5" />
-                  <span>
-                    Integrated AI-driven scheduling logic to automate slot
-                    recommendations and reduce booking conflicts.
-                  </span>
+                  <span>Integrated AI-driven scheduling logic to automate slot recommendations and reduce booking conflicts.</span>
                 </li>
               </ul>
             </div>
@@ -1513,9 +1317,7 @@ const ExperienceSection: React.FC = () => (
                 E & ICT Academy, IIT Kanpur (MeitY) • Jun 2022
               </p>
               <p className="text-xs sm:text-sm text-[#D7E2EA]/80 font-light leading-relaxed">
-                Completed a government-certified 4-week training programme
-                covering data types, control structures, functions, arrays, and
-                pointers in C.
+                Completed a government-certified 4-week training programme covering data types, control structures, functions, arrays, and pointers in C.
               </p>
             </div>
           </FadeIn>
@@ -1542,8 +1344,7 @@ const ExperienceSection: React.FC = () => (
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm text-[#D7E2EA]/80 mt-1.5 leading-relaxed">
-                      RVS College of Engineering & Technology, Jamshedpur —
-                      Jharkhand University of Technology
+                      RVS College of Engineering & Technology, Jamshedpur — Jharkhand University of Technology
                     </p>
                     <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-[#00F5D4]/10 text-[#00F5D4] text-[11px] sm:text-xs font-mono">
                       Currently in 2nd Year
@@ -1643,29 +1444,17 @@ const ContactModal: React.FC<{
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
               <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#151A27] border border-white/10 hover:border-[#00F5D4] transition-all group">
-                <a
-                  href="mailto:ksangam990@gmail.com"
-                  className="flex items-center gap-3 overflow-hidden"
-                >
+                <a href="mailto:ksangam990@gmail.com" className="flex items-center gap-3 overflow-hidden">
                   <div className="p-2 rounded-lg bg-[#00F5D4]/15 text-[#00F5D4]">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div className="truncate">
-                    <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">
-                      Email
-                    </span>
-                    <span className="text-white text-xs sm:text-sm font-medium truncate block">
-                      ksangam990@gmail.com
-                    </span>
+                    <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">Email</span>
+                    <span className="text-white text-xs sm:text-sm font-medium truncate block">ksangam990@gmail.com</span>
                   </div>
                 </a>
                 <button
-                  onClick={() =>
-                    onCopy(
-                      "ksangam990@gmail.com",
-                      "Email address copied to clipboard",
-                    )
-                  }
+                  onClick={() => onCopy("ksangam990@gmail.com", "Email address copied to clipboard")}
                   title="Copy Email"
                   className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white cursor-pointer"
                 >
@@ -1679,18 +1468,12 @@ const ContactModal: React.FC<{
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">
-                      Phone
-                    </span>
-                    <span className="text-white text-xs sm:text-sm font-medium">
-                      +91 9693041674
-                    </span>
+                    <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">Phone</span>
+                    <span className="text-white text-xs sm:text-sm font-medium">+91 9693041674</span>
                   </div>
                 </a>
                 <button
-                  onClick={() =>
-                    onCopy("+919693041674", "Phone number copied to clipboard")
-                  }
+                  onClick={() => onCopy("+919693041674", "Phone number copied to clipboard")}
                   title="Copy Phone"
                   className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white cursor-pointer"
                 >
@@ -1708,9 +1491,7 @@ const ContactModal: React.FC<{
                   <Linkedin className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">
-                    LinkedIn
-                  </span>
+                  <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">LinkedIn</span>
                   <span className="text-white font-medium">sangam-kumar07</span>
                 </div>
               </a>
@@ -1725,12 +1506,8 @@ const ContactModal: React.FC<{
                   <Github className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">
-                    GitHub
-                  </span>
-                  <span className="text-white font-medium">
-                    ksangam990-collab
-                  </span>
+                  <span className="text-[10px] uppercase text-[#D7E2EA]/50 block">GitHub</span>
+                  <span className="text-white font-medium">ksangam990-collab</span>
                 </div>
               </a>
             </div>
@@ -1760,9 +1537,7 @@ const ContactModal: React.FC<{
 // =========================================================================
 // 14. FOOTER (MOBILE ALIGNED)
 // =========================================================================
-const Footer: React.FC<{ onContactClick: () => void }> = ({
-  onContactClick,
-}) => (
+const Footer: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) => (
   <footer className="border-t border-white/10 py-8 sm:py-10 px-4 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-5 text-[#D7E2EA]/70 text-xs sm:text-sm relative z-10 bg-transparent text-center md:text-left">
     <div>
       <p className="uppercase tracking-wider font-semibold text-white">
@@ -1774,36 +1549,10 @@ const Footer: React.FC<{ onContactClick: () => void }> = ({
     </div>
 
     <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 font-mono text-xs uppercase">
-      <a
-        href="https://github.com/ksangam990-collab"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:text-[#00F5D4] transition-colors"
-      >
-        GitHub
-      </a>
-      <a
-        href="https://linkedin.com/in/sangam-kumar07"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:text-[#00F5D4] transition-colors"
-      >
-        LinkedIn
-      </a>
-      <a
-        href="https://slotly.ksangam.dpdns.org"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:text-[#00F5D4] transition-colors"
-      >
-        Slotly Live
-      </a>
-      <button
-        onClick={onContactClick}
-        className="text-[#00F5D4] hover:underline cursor-pointer"
-      >
-        Contact
-      </button>
+      <a href="https://github.com/ksangam990-collab" target="_blank" rel="noopener noreferrer" className="hover:text-[#00F5D4] transition-colors">GitHub</a>
+      <a href="https://linkedin.com/in/sangam-kumar07" target="_blank" rel="noopener noreferrer" className="hover:text-[#00F5D4] transition-colors">LinkedIn</a>
+      <a href="https://slotly.ksangam.dpdns.org" target="_blank" rel="noopener noreferrer" className="hover:text-[#00F5D4] transition-colors">Slotly Live</a>
+      <button onClick={onContactClick} className="text-[#00F5D4] hover:underline cursor-pointer">Contact</button>
     </div>
   </footer>
 );
